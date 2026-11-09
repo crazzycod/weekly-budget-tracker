@@ -1,10 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-mode="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f1f0f2">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f1f0f2" id="themeColor">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,16 +15,28 @@
 <title>Week Spend</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* Layout: one column, editorial headline, stacked overlapping cards */
 :root{
   --bg:#f1f0f2;--ink:#0e0e10;--mute:#8d8c93;--line:#e3e2e7;--soft:#e5e4e9;--field:#f1f0f3;
+  --panel:#ffffff;--sheet:#ffffff;--track:#dfdee4;--rowline:#efeef2;
+  --navbg:#111113;--navfg:#8f8f96;--navon:#ffffff;--navonfg:#111113;
+  --cardink:#19122d;--a1:#a983e8;--a2:#e4c8ef;
   --danger:#d63b3b;--warn:#d99a00;
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Inter",Arial,sans-serif;
+  --spring:cubic-bezier(.2,.9,.25,1.12);
   color-scheme:light;
 }
-html,body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+:root[data-mode="dark"]{
+  --bg:#0d0d10;--ink:#f2f1f5;--mute:#8a8992;--line:#2a2a31;--soft:#232329;--field:#1c1c22;
+  --panel:#17171c;--sheet:#18181d;--track:#2a2a31;--rowline:#24242a;
+  --navbg:#232329;--navfg:#8a8992;--navon:#f2f1f5;--navonfg:#0d0d10;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;transition:background .3s,color .3s}
 body{min-height:100dvh;overscroll-behavior-y:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:disabled{cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,label:focus-within{outline:2px solid var(--ink);outline-offset:2px}
 input,select,textarea{font:inherit;font-size:16px;color:inherit}
 [hidden]{display:none!important}
 svg{display:block}
@@ -42,31 +53,34 @@ svg{display:block}
 .lg-note{display:grid;grid-template-columns:44px 1fr;gap:6px;font-size:14px;line-height:1.35;margin-top:18px;max-width:300px}
 .swatch{display:flex;margin-top:18px}
 .swatch i{width:30px;height:30px;border-radius:50%;margin-right:-9px;border:2px solid var(--bg)}
+.lg-warn{margin-top:16px;padding:12px 14px;border-radius:16px;background:color-mix(in srgb,var(--danger) 14%,var(--bg));color:var(--danger);font-size:13px;line-height:1.4}
 .lg-form{margin-top:auto;padding-top:20px}
 .lg-hi{text-align:center;font-size:20px;letter-spacing:-.02em}
 .lg-msg{text-align:center;font-size:14px;color:var(--mute);margin-top:4px}
 .dots{display:flex;gap:16px;justify-content:center;margin:18px 0 6px}
-.dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);transition:background .15s}
-.dots i.f{background:var(--ink)}
+.dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);transition:background .15s,transform .2s var(--spring)}
+.dots i.f{background:var(--ink);transform:scale(1.1)}
 .shake{animation:sh .42s}
 @keyframes sh{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
 .lg-err{color:var(--danger);text-align:center;font-size:13px;min-height:18px}
 .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-.keys button{height:60px;border-radius:22px;background:var(--soft);font-size:26px;font-weight:400;display:grid;place-items:center}
-.keys button:active{background:#d2d1d8}
+.keys button{height:60px;border-radius:22px;background:var(--soft);font-size:26px;font-weight:400;display:grid;place-items:center;transition:transform .15s var(--spring),background .15s}
+.keys button:active{transform:scale(.94);background:var(--line)}
 .keys button.blank{background:transparent}
 .keys svg{width:26px;height:26px}
 .ufield label{font-size:13px;color:var(--mute);display:block;margin-bottom:6px}
 .ufield input{width:100%;border:0;border-bottom:1.5px solid var(--ink);background:none;font-size:30px;letter-spacing:-.03em;padding:4px 0 10px;outline:0;border-radius:0}
 .lg-alt{text-align:center;font-size:14px;color:var(--mute);margin-top:14px}
 .lg-alt button{text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
+.lg-where{text-align:center;font-size:11.5px;color:var(--mute);margin-top:10px;letter-spacing:.01em}
 
 /* ---------- Main ---------- */
 main{padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 112px)}
 .top{display:flex;justify-content:space-between;align-items:center;height:48px}
 .hl{display:flex;align-items:center;gap:8px}
-.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(140deg,#a983e8,#e4c8ef);color:#1b1230;display:grid;place-items:center;font-size:16px;font-weight:600}
-.circle{width:42px;height:42px;border-radius:50%;background:var(--soft);display:grid;place-items:center;flex:none}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(140deg,var(--a1),var(--a2));color:#1b1230;display:grid;place-items:center;font-size:16px;font-weight:600}
+.circle{width:42px;height:42px;border-radius:50%;background:var(--soft);display:grid;place-items:center;flex:none;transition:transform .2s var(--spring)}
+.circle:active{transform:scale(.9)}
 .circle svg{width:19px;height:19px}
 .circle.ghost{background:transparent}
 .eyebrow{margin-top:22px;font-size:20px;color:var(--mute);letter-spacing:-.01em}
@@ -79,46 +93,59 @@ main{padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset
 .summary{margin:22px 0}
 .sum-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .big-num{font-size:32px;font-weight:500;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
-.bar{height:6px;background:#dfdee4;border-radius:6px;margin-top:12px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--ink);border-radius:6px;transition:width .5s}
+.bar{height:6px;background:var(--track);border-radius:6px;margin-top:12px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);border-radius:6px;transition:width .8s var(--spring)}
 .bar i.warn{background:var(--warn)}
 .bar i.over{background:var(--danger)}
 .sum-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--mute)}
 .sum-meta .neg{color:var(--danger)}
 
 .stack{display:flex;flex-direction:column}
-.card{position:relative;display:block;width:100%;background:var(--c);border-radius:30px;padding:14px 18px 46px;margin-top:-32px;text-align:left;box-shadow:0 -6px 20px rgba(20,10,40,.07);transition:transform .2s}
+.card{position:relative;display:block;width:100%;background:var(--cbg,var(--c));color:var(--ck,var(--cardink));border-radius:30px;padding:14px 18px 46px;margin-top:-32px;text-align:left;box-shadow:0 -6px 20px rgba(20,10,40,.08);transition:transform .35s var(--spring),box-shadow .35s}
 .card:first-child{margin-top:0}
 .card:last-child{padding-bottom:18px}
-.card:active{transform:translateY(-4px)}
+.card:active{transform:translateY(-6px) scale(.985);box-shadow:0 -10px 26px rgba(20,10,40,.14)}
 .card-top{display:flex;align-items:center;gap:8px;height:42px}
 .ic{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.42);display:grid;place-items:center;flex:none}
 .ic svg{width:19px;height:19px}
 .pill{font-size:11.5px;padding:5px 10px;border-radius:20px;background:rgba(255,255,255,.42);display:inline-flex;gap:5px;align-items:center}
 .pill svg{width:12px;height:12px}
 .row{display:flex;justify-content:space-between;gap:12px}
-.row.meta{margin-top:12px;font-size:13px;color:rgba(25,18,45,.5)}
+.row.meta{margin-top:12px;font-size:13px;opacity:.55}
 .row.main{margin-top:3px;font-size:21px;letter-spacing:-.015em}
 .ttl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .amt{white-space:nowrap;font-variant-numeric:tabular-nums}
-.empty{border:1.5px dashed #cdccd3;border-radius:30px;padding:34px 22px;text-align:center;color:var(--mute);font-size:15px;line-height:1.4}
+.empty{border:1.5px dashed var(--line);border-radius:30px;padding:34px 22px;text-align:center;color:var(--mute);font-size:15px;line-height:1.4}
 .empty b{display:block;color:var(--ink);font-size:21px;font-weight:500;letter-spacing:-.02em;margin-bottom:6px}
 .empty .btn{margin-top:16px}
 
+/* Motion */
+.card.enter{animation:cardIn .6s var(--spring) both;animation-delay:calc(var(--i,0) * 55ms)}
+@keyframes cardIn{from{opacity:0;transform:translateY(34px) scale(.95)}to{opacity:1;transform:none}}
+.card.pop{animation:cardPop .7s var(--spring) both}
+@keyframes cardPop{0%{opacity:0;transform:translateY(-40px) scale(1.04)}60%{opacity:1}100%{transform:none}}
+.view-in{animation:viewIn .35s ease both}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.headline.swap{animation:hSwap .45s var(--spring)}
+@keyframes hSwap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+:root.nomotion *,:root.nomotion *::before{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
 /* ---------- Nav ---------- */
-#nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 14px);background:#111113;border-radius:40px;padding:6px;display:flex;gap:4px;box-shadow:0 12px 30px rgba(0,0,0,.2);z-index:20}
-#nav button{width:56px;height:46px;border-radius:30px;display:grid;place-items:center;color:#8f8f96;transition:background .2s,color .2s}
-#nav button.on{background:#fff;color:#111}
+#nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 14px);background:var(--navbg);border-radius:40px;padding:6px;display:flex;gap:4px;box-shadow:0 12px 30px rgba(0,0,0,.22);z-index:20}
+#nav button{width:56px;height:46px;border-radius:30px;display:grid;place-items:center;color:var(--navfg);transition:background .25s,color .25s,transform .2s var(--spring)}
+#nav button:active{transform:scale(.9)}
+#nav button.on{background:var(--navon);color:var(--navonfg)}
 #nav svg{width:21px;height:21px}
 
 /* ---------- Sheets ---------- */
 #sheetWrap{position:fixed;inset:0;z-index:50;pointer-events:none}
-#sheetWrap .scrim{position:absolute;inset:0;background:rgba(10,10,15,.35);opacity:0;transition:opacity .25s}
-.sheet{position:absolute;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:#fff;border-radius:32px 32px 0 0;padding:10px 20px calc(env(safe-area-inset-bottom) + 20px);transform:translateY(105%);transition:transform .34s cubic-bezier(.2,.8,.2,1);max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#sheetWrap .scrim{position:absolute;inset:0;background:rgba(10,10,15,.4);opacity:0;transition:opacity .25s}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;background:var(--sheet);border-radius:32px 32px 0 0;padding:10px 20px calc(env(safe-area-inset-bottom) + 20px);transform:translateY(105%);transition:transform .42s var(--spring);max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #sheetWrap.open{pointer-events:auto}
 #sheetWrap.open .scrim{opacity:1}
 #sheetWrap.open .sheet{transform:none}
-.grab{width:40px;height:5px;border-radius:5px;background:#dcdbe0;margin:0 auto 12px}
+.grab{width:40px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 12px}
 .sh-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .sh-head h2{font-size:28px;font-weight:500;letter-spacing:-.035em}
 .amt-field{display:flex;align-items:baseline;gap:10px;border-bottom:1.5px solid var(--line);padding:4px 0 10px;margin-bottom:14px}
@@ -129,21 +156,22 @@ main{padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset
 .flabel{font-size:13px;color:var(--mute);margin:4px 2px 6px;display:block}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 20px 14px;margin:0 -20px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chipc{flex:none;display:flex;align-items:center;gap:6px;padding:8px 14px 8px 9px;border-radius:30px;background:var(--field);font-size:14px;border:2px solid transparent}
+.chipc{flex:none;display:flex;align-items:center;gap:6px;padding:8px 14px 8px 9px;border-radius:30px;background:var(--field);font-size:14px;border:2px solid transparent;transition:transform .2s var(--spring)}
+.chipc:active{transform:scale(.94)}
 .chipc svg{width:16px;height:16px}
-.chipc .d{width:24px;height:24px;border-radius:50%;background:var(--c);display:grid;place-items:center}
-.chipc.on{background:var(--c);border-color:var(--ink)}
+.chipc .d{width:24px;height:24px;border-radius:50%;background:var(--cbg,var(--c));color:var(--ck,var(--cardink));display:grid;place-items:center}
+.chipc.on{background:var(--cbg,var(--c));color:var(--ck,var(--cardink));border-color:var(--ink)}
 .chipc.on .d{background:rgba(255,255,255,.5)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{display:block;width:100%;height:56px;border-radius:30px;background:var(--ink);color:#fff;font-size:17px;font-weight:500;margin-top:6px}
-.btn:active{opacity:.85}
+.btn{display:block;width:100%;height:56px;border-radius:30px;background:var(--ink);color:var(--bg);font-size:17px;font-weight:500;margin-top:6px;transition:transform .2s var(--spring)}
+.btn:active{transform:scale(.97)}
 .btn.light{background:var(--soft);color:var(--ink)}
 .btn-text{display:block;width:100%;padding:16px;font-size:15px}
 .danger{color:var(--danger)}
 .seg{display:flex;background:var(--field);border-radius:16px;padding:4px;margin-bottom:10px}
-.seg button{flex:1;height:42px;border-radius:12px;font-size:14px;color:var(--mute)}
-.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.mlist button{display:flex;align-items:center;gap:14px;width:100%;padding:14px 4px;font-size:18px;border-top:1px solid #efeef2;text-align:left}
+.seg button{flex:1;height:42px;border-radius:12px;font-size:14px;color:var(--mute);transition:background .2s,color .2s}
+.seg button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.mlist button{display:flex;align-items:center;gap:14px;width:100%;padding:14px 4px;font-size:18px;border-top:1px solid var(--rowline);text-align:left}
 .mlist button:first-child{border-top:0}
 .mlist svg{width:22px;height:22px}
 .steps{counter-reset:s;list-style:none}
@@ -156,47 +184,76 @@ textarea.field{min-height:140px;font:13px/1.4 ui-monospace,Menlo,monospace;resiz
 
 /* ---------- Insights ---------- */
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0 12px}
-.kpi{background:#fff;border-radius:20px;padding:12px 14px;min-width:0}
+.kpi{background:var(--panel);border-radius:20px;padding:12px 14px;min-width:0}
 .kpi small{display:block;font-size:12px;color:var(--mute)}
 .kpi b{display:block;font-size:16px;font-weight:500;margin-top:4px;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.panel{background:#fff;border-radius:26px;padding:18px;margin-bottom:12px}
+.panel{background:var(--panel);border-radius:26px;padding:18px;margin-bottom:12px}
 .panel h3{font-size:15px;font-weight:500;margin-bottom:16px;display:flex;justify-content:space-between;gap:10px}
 .panel h3 span{color:var(--mute);font-weight:400;font-size:13px}
 .chart{display:flex;align-items:stretch;gap:4px;height:160px}
 .chart.dense{gap:2px}
 .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}
 .chart .bw{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
-.chart .b{width:100%;max-width:30px;border-radius:8px;background:var(--ink);min-height:4px;transition:height .5s}
+.chart .b{width:100%;max-width:30px;border-radius:8px;background:var(--ink);min-height:4px;transform-origin:bottom;animation:grow .7s var(--spring) both;animation-delay:calc(var(--i,0) * 30ms)}
+@keyframes grow{from{transform:scaleY(0)}to{transform:none}}
 .chart.dense .b{border-radius:4px}
-.chart .b.zero{background:#ebeaef}
-.chart .b.today{background:#a983e8}
+.chart .b.zero{background:var(--soft)}
+.chart .b.today{background:var(--a1)}
 .chart .lb{font-size:11px;color:var(--mute);height:14px;margin-top:6px;white-space:nowrap}
 .catrow{margin-bottom:14px}
 .catrow:last-child{margin-bottom:0}
 .catrow .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px;gap:10px}
 .catrow .t span:first-child{display:flex;gap:8px;align-items:center}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--cbg,var(--c));flex:none}
 .track{height:10px;background:var(--field);border-radius:10px;overflow:hidden}
-.track i{display:block;height:100%;background:var(--c);border-radius:10px}
-.mrow{display:flex;justify-content:space-between;font-size:15px;padding:10px 0;border-top:1px solid #f0eff3}
+.track i{display:block;height:100%;background:var(--cbg,var(--c));border-radius:10px;transform-origin:left;animation:growX .8s var(--spring) both}
+@keyframes growX{from{transform:scaleX(0)}to{transform:none}}
+.mrow{display:flex;justify-content:space-between;font-size:15px;padding:10px 0;border-top:1px solid var(--rowline)}
 .mrow:first-of-type{border-top:0}
 .mrow span:last-child{font-variant-numeric:tabular-nums}
 
 /* ---------- Settings ---------- */
 .gtitle{font-size:13px;color:var(--mute);margin:24px 4px 8px}
-.group{background:#fff;border-radius:24px;overflow:hidden}
-.srow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;min-height:56px;border-top:1px solid #efeef2;width:100%;text-align:left;font-size:16px}
+.group{background:var(--panel);border-radius:24px;overflow:hidden}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 16px;min-height:56px;border-top:1px solid var(--rowline);width:100%;text-align:left;font-size:16px}
 .srow:first-child{border-top:0}
+.srow.col{flex-direction:column;align-items:stretch;justify-content:center;padding:14px 16px;gap:10px}
 .srow .v{color:var(--mute);font-size:15px;text-align:right}
-.srow input,.srow select{border:0;background:var(--field);border-radius:12px;padding:8px 12px;width:136px;text-align:right;outline:0;-webkit-appearance:none;appearance:none}
+.srow .v.ok{color:#2f9e5b}
+.srow .v.bad{color:var(--danger)}
+.srow input[type=number],.srow select{border:0;background:var(--field);border-radius:12px;padding:8px 12px;width:136px;text-align:right;outline:0;-webkit-appearance:none;appearance:none}
 .srow select{text-align-last:right}
-.srow svg{width:18px;height:18px;color:var(--mute)}
+.srow>svg{width:18px;height:18px;color:var(--mute)}
 .srow.danger{color:var(--danger)}
+.srow input[type=checkbox]{width:22px;height:22px;accent-color:#34c759;flex:none}
+.srow input[switch]{width:auto;height:auto}
+.srow .seg{margin:0;padding:3px;border-radius:12px;flex:none}
+.srow .seg button{height:32px;padding:0 12px;border-radius:9px;font-size:13px}
+.lbl small{display:block;font-size:12px;color:var(--mute);margin-top:2px}
 
-#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translate(-50%,-160%);background:#111;color:#fff;padding:12px 18px;border-radius:30px;font-size:14px;z-index:80;transition:transform .3s;max-width:90vw;text-align:center}
+.preview{display:flex;flex-direction:column;pointer-events:none}
+.preview .card{padding:10px 14px 30px;margin-top:-22px;border-radius:22px;box-shadow:0 -4px 14px rgba(20,10,40,.08)}
+.preview .card:first-child{margin-top:0}
+.preview .card:last-child{padding-bottom:12px}
+.preview .row.main{font-size:16px}
+.preview .row.meta{margin-top:2px;font-size:11px}
+.presets{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none}
+.presets::-webkit-scrollbar{display:none}
+.preset{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--mute);width:62px}
+.preset i{width:50px;height:50px;border-radius:50%;border:2.5px solid transparent;box-shadow:inset 0 0 0 3px var(--panel);transition:transform .2s var(--spring)}
+.preset:active i{transform:scale(.9)}
+.preset.on{color:var(--ink)}
+.preset.on i{border-color:var(--ink)}
+.mycolors{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw{position:relative;width:42px;height:42px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);overflow:hidden;flex:none;cursor:pointer}
+.sw input{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);opacity:0;cursor:pointer;border:0;padding:0}
+.swbtn{width:42px;height:42px;border-radius:50%;background:var(--field);display:grid;place-items:center;flex:none;color:var(--ink)}
+.swbtn svg{width:18px;height:18px}
+.swbtn:disabled{opacity:.35}
+
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translate(-50%,-160%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:30px;font-size:14px;z-index:80;transition:transform .4s var(--spring);max-width:90vw;text-align:center}
 #toast.show{transform:translate(-50%,0)}
-.fade{animation:fd .3s ease}
-@keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.haptic{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
 </style>
 </head>
 <body>
@@ -207,6 +264,7 @@ textarea.field{min-height:140px;font:13px/1.4 ui-monospace,Menlo,monospace;resiz
 </div>
 <div id="sheetWrap" aria-hidden="true"><div class="scrim" data-act="close"></div><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 <div id="toast" role="status"></div>
+<div class="haptic" aria-hidden="true"><input type="checkbox" switch id="hapSw" tabindex="-1"><label for="hapSw" id="hapLb"></label></div>
 
 <script>
 'use strict';
@@ -214,11 +272,17 @@ textarea.field{min-height:140px;font:13px/1.4 ui-monospace,Menlo,monospace;resiz
 const NS = 'ws_';
 const S = {
   get(k, d){ try{ const v = localStorage.getItem(NS+k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(NS+k, JSON.stringify(v)); }catch(e){ toast('Could not save — storage is full or blocked'); } },
+  set(k, v){ try{ localStorage.setItem(NS+k, JSON.stringify(v)); }catch(e){ toast('Could not save. Safari is blocking storage.'); } },
   del(k){ try{ localStorage.removeItem(NS+k); }catch(e){} }
 };
+function storageWorks(){
+  try{ const k = NS+'probe'; localStorage.setItem(k, '1'); const ok = localStorage.getItem(k) === '1'; localStorage.removeItem(k); return ok; }
+  catch(e){ return false; }
+}
+const STORAGE_OK = storageWorks();
+function askPersist(){ try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{}); }catch(e){} }
 
-/* ================= Constants ================= */
+/* ================= Icons ================= */
 const ICONS = {
   food:'<path d="M6 3v6a2 2 0 0 0 4 0V3M8 11v10M17 21V3c-2.2 1.2-3.3 3.6-3.3 7v3H17"/>',
   cafe:'<path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9zM17 10.5h1.5a2.5 2.5 0 0 1 0 5H17M8.5 3v3M12.5 3v3"/>',
@@ -232,6 +296,7 @@ const ICONS = {
   travel:'<path d="M10.5 13.5 3 10l17-6.5L13.5 21l-3-7.5zM10.5 13.5 20 3.5"/>',
   other:'<circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
+  minus:'<path d="M5 12h14"/>',
   down:'<path d="m6 9 6 6 6-6"/>',
   left:'<path d="m15 6-6 6 6 6"/>',
   right:'<path d="m9 6 6 6-6 6"/>',
@@ -249,23 +314,69 @@ const ICONS = {
 const ic = (n, sw=1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
 
 const CATS = [
-  {id:'food',          name:'Food',          color:'#c9cdf0'},
-  {id:'cafe',          name:'Cafe',          color:'#f4d7bd'},
-  {id:'groceries',     name:'Groceries',     color:'#bfe6cf'},
-  {id:'shopping',      name:'Shopping',      color:'#eaef9b'},
-  {id:'transport',     name:'Transport',     color:'#bfdcf3'},
-  {id:'entertainment', name:'Entertainment', color:'#a983e8'},
-  {id:'games',         name:'Games',         color:'#e4c8ef'},
-  {id:'bills',         name:'Bills',         color:'#f2c4a8'},
-  {id:'health',        name:'Health',        color:'#f3c3d6'},
-  {id:'travel',        name:'Travel',        color:'#d6e3a2'},
-  {id:'other',         name:'Other',         color:'#dcdbe2'}
+  {id:'food',name:'Food'},{id:'cafe',name:'Cafe'},{id:'groceries',name:'Groceries'},{id:'shopping',name:'Shopping'},
+  {id:'transport',name:'Transport'},{id:'entertainment',name:'Entertainment'},{id:'games',name:'Games'},
+  {id:'bills',name:'Bills'},{id:'health',name:'Health'},{id:'travel',name:'Travel'},{id:'other',name:'Other'}
 ];
 const cat = id => CATS.find(c => c.id === id) || CATS[CATS.length-1];
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DEF_SETTINGS = {weekly:1500, monthly:6000, weekStart:1, lock:5};
+
+/* ================= Theme ================= */
+const PRESETS = {
+  classic:{name:'Classic', colors:['#c9cdf0','#f4d7bd','#bfe6cf','#eaef9b','#bfdcf3','#a983e8','#e4c8ef','#f2c4a8','#f3c3d6','#d6e3a2','#dcdbe2']},
+  sorbet: {name:'Sorbet',  colors:['#ffc9b9','#ffdca3','#f7abc7','#e6b8f2','#ffe9a6','#f8bfa0']},
+  lagoon: {name:'Lagoon',  colors:['#a9e6e1','#bad4ff','#9fc6f7','#c8f0d9','#8fd4e8','#d4e3ff']},
+  dusk:   {name:'Dusk',    colors:['#c8b4ff','#a983e8','#f0b9e0','#a0a9f0','#e4c8ef','#b9a3f5']},
+  citrus: {name:'Citrus',  colors:['#eaef9b','#c9f0a8','#ffe08a','#b8ebc9','#f6f2ae','#d9f59c']},
+  paper:  {name:'Paper',   colors:['#ecebef','#dddce2','#d0cfd6','#e6e1d8','#d9dfe0','#e2dce6']}
+};
+const DEF_THEME = {preset:'classic', custom:null, gradient:false, mode:'light', haptics:true, motion:true};
+let T = {...DEF_THEME, ...S.get('theme', {})};
+const isHex = v => /^#[0-9a-f]{6}$/i.test(v);
+function palette(){
+  const p = T.preset === 'custom' && Array.isArray(T.custom) && T.custom.length >= 2 ? T.custom : (PRESETS[T.preset] || PRESETS.classic).colors;
+  return p.filter(isHex);
+}
+function lum(hex){
+  const n = parseInt(hex.slice(1),16), ch = [n>>16&255, n>>8&255, n&255].map(v => { v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); });
+  return .2126*ch[0] + .7152*ch[1] + .0722*ch[2];
+}
+function catVars(id){
+  const pal = palette(), i = Math.max(0, CATS.findIndex(c => c.id === id));
+  const c = pal[i % pal.length], n = pal[(i+1) % pal.length];
+  const bg = T.gradient ? `linear-gradient(140deg, ${c} 8%, ${n} 125%)` : c;
+  const L = T.gradient ? (lum(c)+lum(n))/2 : lum(c);
+  return `--c:${c};--cbg:${bg};--ck:${L < .3 ? '#ffffff' : '#19122d'}`;
+}
+const mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+function applyTheme(){
+  const dark = T.mode === 'dark' || (T.mode === 'auto' && mq && mq.matches);
+  const root = document.documentElement;
+  root.dataset.mode = dark ? 'dark' : 'light';
+  root.classList.toggle('nomotion', !T.motion);
+  const pal = palette();
+  root.style.setProperty('--a1', pal[Math.min(5, pal.length-1)] || '#a983e8');
+  root.style.setProperty('--a2', pal[0] || '#e4c8ef');
+  const tc = document.getElementById('themeColor'); if (tc) tc.content = dark ? '#0d0d10' : '#f1f0f2';
+}
+function saveTheme(){ S.set('theme', T); applyTheme(); }
+if (mq && mq.addEventListener) mq.addEventListener('change', () => { if (T.mode === 'auto'){ applyTheme(); } });
+applyTheme();
+
+/* ================= Haptics ================= */
+// iOS Safari has no vibration API. Toggling a native switch control gives a light system tick on iOS 18+.
+const hapLb = document.getElementById('hapLb');
+function haptic(strong){
+  if (!T.haptics) return;
+  try{
+    if (navigator.vibrate){ navigator.vibrate(strong ? [14,50,14] : 9); return; }
+    hapLb.click();
+    if (strong) setTimeout(() => hapLb.click(), 70);
+  }catch(e){}
+}
 
 /* ================= Helpers ================= */
 const $ = s => document.querySelector(s);
@@ -285,6 +396,8 @@ try{
 const fmt = n => NF.format(n);
 const fmt0 = n => NF0.format(n);
 const isStandalone = () => window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+const motionOn = () => T.motion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const accountCount = () => Object.keys(S.get('accounts', {})).length;
 
 let toastT;
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400); }
@@ -295,7 +408,7 @@ async function hashPin(salt, pin){
     const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
     return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
   }
-  let h = 2166136261 >>> 0;                       // fallback for non-HTTPS testing only
+  let h = 2166136261 >>> 0;
   for (let i = 0; i < 4000; i++) for (const ch of s){ h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; }
   return 'f' + h.toString(16);
 }
@@ -304,17 +417,18 @@ function rnd(n=16){ const a = new Uint8Array(n); if (window.crypto && crypto.get
 /* ================= Launch params (Shortcut / Action Button) ================= */
 const qp = new URLSearchParams(location.search);
 const pending = {
-  add: qp.has('add') || qp.has('amt'),
+  add: qp.has('add') || qp.has('amt') || location.hash === '#add',
   amt: qp.get('amt'),
   title: qp.get('title') || qp.get('t'),
   cat: qp.get('cat')
 };
-if (location.search) history.replaceState(null, '', location.pathname);
+if (location.search || location.hash) history.replaceState(null, '', location.pathname);
 
 /* ================= State ================= */
 let user = null, D = null;
 let view = 'home', period = 'week', offset = 0;
-let L = {};          // login state
+let L = {};
+let animate = false, lastAdded = null, lastTotal = 0;
 
 function load(u){
   D = S.get('data_'+u, null) || {expenses:[], subs:[], settings:{...DEF_SETTINGS}};
@@ -356,7 +470,7 @@ function lockedFor(){ const t = S.get('lockout', 0); return t > Date.now() ? Mat
 
 function renderLogin(){
   const d = new Date();
-  const hasAccts = Object.keys(S.get('accounts', {})).length > 0;
+  const n = accountCount();
   let form = '';
   if (L.step === 'name'){
     form = `
@@ -367,7 +481,7 @@ function renderLogin(){
       <div class="lg-err">${esc(L.err)}</div>
       <button class="btn" data-act="lgNext">${L.mode === 'create' ? 'Continue' : 'Next'}</button>
       <div class="lg-alt">${L.mode === 'create'
-        ? (hasAccts ? `Have an account? <button data-act="lgMode" data-mode="login">Log in</button>` : 'Your data stays on this iPhone.')
+        ? (n ? `Have an account? <button data-act="lgMode" data-mode="login">Log in</button>` : 'Your data stays on this iPhone.')
         : `New here? <button data-act="lgMode" data-mode="create">Create account</button>`}</div>`;
   } else {
     const msg = L.mode === 'login' ? 'Enter your PIN' : (L.step === 'confirm' ? 'Confirm your PIN' : 'Create a 4-digit PIN');
@@ -378,22 +492,25 @@ function renderLogin(){
       <div class="dots ${L.shake ? 'shake' : ''}">${[0,1,2,3].map(i => `<i class="${i < L.pin.length ? 'f' : ''}"></i>`).join('')}</div>
       <div class="lg-err">${esc(L.err)}</div>
       <div class="keys">
-        ${[1,2,3,4,5,6,7,8,9].map(n => `<button data-key="${n}" aria-label="${n}">${n}</button>`).join('')}
+        ${[1,2,3,4,5,6,7,8,9].map(k => `<button data-key="${k}" aria-label="${k}">${k}</button>`).join('')}
         <button class="blank" disabled></button><button data-key="0" aria-label="0">0</button><button data-key="del" aria-label="Delete">${ic('back',1.6)}</button>
       </div>
       <div class="lg-alt">${L.mode === 'login'
         ? `Not ${esc(L.name)}? <button data-act="lgMode" data-mode="other">Switch account</button>`
         : `<button data-act="lgMode" data-mode="create">Change username</button>`}</div>`;
   }
+  const pal = palette();
   $('#login').innerHTML = `
     <div class="lg-top">
-      <div class="brand"><div>Budget</div><div class="sub">${`<svg viewBox="0 0 40 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">${ICONS.arrow}</svg>`}Tracker</div></div>
+      <div class="brand"><div>Budget</div><div class="sub"><svg viewBox="0 0 40 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">${ICONS.arrow}</svg>Tracker</div></div>
       <div class="lg-date mute">${DAYS[d.getDay()].slice(0,3)}, ${d.getDate()} ${MON[d.getMonth()]}<br>(AED)</div>
     </div>
     <h1 class="poster">Week<br>Spend</h1>
     <div class="lg-note"><span class="mute">(01)</span><span class="mute">Get clarity into your spending habits. Private, offline, on your iPhone.</span></div>
-    <div class="swatch">${['#e4c8ef','#eaef9b','#a983e8','#c9cdf0'].map(c=>`<i style="background:${c}"></i>`).join('')}</div>
-    <div class="lg-form">${form}</div>`;
+    <div class="swatch">${[0,3,5,1].map(i => `<i style="background:${pal[i % pal.length]}"></i>`).join('')}</div>
+    ${STORAGE_OK ? '' : `<div class="lg-warn"><b>Safari isn't saving data here</b>, so you'll be asked to sign up every time. Close Private Browsing, and in iPhone Settings → Apps → Safari, turn off <b>Block All Cookies</b>.</div>`}
+    <div class="lg-form">${form}</div>
+    <div class="lg-where">Opened in ${isStandalone() ? 'Home Screen app' : 'Safari'} · ${n} account${n === 1 ? '' : 's'} on this device · storage ${STORAGE_OK ? 'OK' : 'blocked'}</div>`;
   L.shake = false;
   const inp = $('#lgName');
   if (inp){
@@ -405,10 +522,10 @@ function renderLogin(){
 function lgNext(){
   const accts = S.get('accounts', {});
   const name = (L.name || '').trim().toLowerCase().replace(/\s+/g,'');
-  if (!/^[a-z0-9._-]{2,24}$/.test(name)){ L.err = 'Use 2–24 letters, numbers, dots or dashes'; return renderLogin(); }
+  if (!/^[a-z0-9._-]{2,24}$/.test(name)){ L.err = 'Use 2–24 letters, numbers, dots or dashes'; haptic(true); return renderLogin(); }
   L.name = name; L.err = '';
-  if (L.mode === 'create' && accts[name]){ L.err = 'That username is already on this iPhone'; return renderLogin(); }
-  if (L.mode === 'login' && !accts[name]){ L.err = 'No account with that name on this iPhone'; return renderLogin(); }
+  if (L.mode === 'create' && accts[name]){ L.err = 'That username is already on this iPhone'; haptic(true); return renderLogin(); }
+  if (L.mode === 'login' && !accts[name]){ L.err = 'No account with that name on this iPhone'; haptic(true); return renderLogin(); }
   L.step = 'pin'; L.pin = ''; renderLogin();
 }
 
@@ -421,7 +538,7 @@ async function pinKey(k){
   const accts = S.get('accounts', {});
   if (L.mode === 'create'){
     if (L.step === 'pin'){ L.first = L.pin; L.pin = ''; L.step = 'confirm'; return setTimeout(renderLogin, 120); }
-    if (L.pin !== L.first){ L.err = "PINs didn't match. Try again."; L.pin=''; L.first=''; L.step='pin'; L.shake=true; return setTimeout(renderLogin, 120); }
+    if (L.pin !== L.first){ L.err = "PINs didn't match. Try again."; L.pin=''; L.first=''; L.step='pin'; L.shake=true; haptic(true); return setTimeout(renderLogin, 120); }
     const salt = rnd();
     accts[L.name] = {salt, hash: await hashPin(salt, L.pin), created: Date.now()};
     S.set('accounts', accts);
@@ -431,20 +548,20 @@ async function pinKey(k){
   if (a && a.hash === await hashPin(a.salt, L.pin)){ S.del('fails'); return enter(L.name); }
   const fails = S.get('fails', 0) + 1; S.set('fails', fails);
   if (fails >= 5){ S.set('lockout', Date.now()+30000); S.del('fails'); setTimeout(renderLogin, 30500); }
-  L.err = fails >= 5 ? '' : 'Wrong PIN'; L.pin = ''; L.shake = true;
+  L.err = fails >= 5 ? '' : 'Wrong PIN'; L.pin = ''; L.shake = true; haptic(true);
   setTimeout(renderLogin, 120);
 }
 
 function enter(name, isNew){
   user = name; S.set('last', name);
-  load(name); save(); touchSession();
+  load(name); save(); touchSession(); askPersist();
   const added = processRecurring();
   $('#login').hidden = true; $('#main').hidden = false; $('#nav').hidden = false;
-  view = 'home'; period = 'week'; offset = 0;
-  render();
-  if (isNew) toast('Account created. Set your budget in Settings.');
+  view = 'home'; period = 'week'; offset = 0; lastTotal = 0;
+  animate = true; render();
+  if (isNew) toast(STORAGE_OK ? 'Account created. Set your budget in Settings.' : 'Account created, but Safari is blocking storage');
   else if (added) toast(`${added} subscription payment${added>1?'s':''} added`);
-  if (pending.add){ pending.add = false; setTimeout(() => openExpense(null, pending), 250); }
+  if (pending.add){ pending.add = false; setTimeout(() => openExpense(null, pending), 300); }
 }
 
 function lockApp(){
@@ -492,10 +609,11 @@ function range(o = offset){
 }
 const inRange = r => { const a = ymd(r.s), b = ymd(r.e); return D.expenses.filter(x => x.date >= a && x.date <= b); };
 function rangeLabel(r){
+  const span = `${r.s.getDate()} ${MON[r.s.getMonth()]} – ${r.e.getDate()} ${MON[r.e.getMonth()]}`;
   if (period === 'week'){
-    if (offset === 0) return 'This week · ' + `${r.s.getDate()} ${MON[r.s.getMonth()]} – ${r.e.getDate()} ${MON[r.e.getMonth()]}`;
-    if (offset === -1) return 'Last week · ' + `${r.s.getDate()} ${MON[r.s.getMonth()]} – ${r.e.getDate()} ${MON[r.e.getMonth()]}`;
-    return `${r.s.getDate()} ${MON[r.s.getMonth()]} – ${r.e.getDate()} ${MON[r.e.getMonth()]} ${r.e.getFullYear()}`;
+    if (offset === 0) return 'This week · ' + span;
+    if (offset === -1) return 'Last week · ' + span;
+    return span + ' ' + r.e.getFullYear();
   }
   return (offset === 0 ? 'This month · ' : '') + `${MONTHS[r.s.getMonth()]} ${r.s.getFullYear()}`;
 }
@@ -513,14 +631,15 @@ function header(){
 function periodBlock(eyebrow){
   const r = range();
   return `<div class="eyebrow">${eyebrow}</div>
-    <button class="headline" data-act="togglePeriod" aria-label="Switch week or month">${period === 'week' ? 'Week' : 'Month'}<span class="caret">${ic('down',3)}</span></button>
+    <button class="headline ${animate ? 'swap' : ''}" data-act="togglePeriod" aria-label="Switch week or month">${period === 'week' ? 'Week' : 'Month'}<span class="caret">${ic('down',3)}</span></button>
     <div class="pnav"><button data-act="prev" aria-label="Previous">${ic('left',2.2)}</button><span>${rangeLabel(r)}</span>
       <button data-act="next" aria-label="Next" ${offset >= 0 ? 'disabled' : ''}>${ic('right',2.2)}</button></div>`;
 }
-function card(x){
+function card(x, i){
   const c = cat(x.cat), d = parse(x.date);
   const dl = period === 'week' ? DAYS[d.getDay()] : `${DAYS[d.getDay()].slice(0,3)} ${d.getDate()}`;
-  return `<button class="card" style="--c:${c.color}" data-act="edit" data-id="${x.id}">
+  const cls = x.id === lastAdded ? 'pop' : (animate ? 'enter' : '');
+  return `<button class="card ${cls}" style="${catVars(c.id)};--i:${i}" data-act="edit" data-id="${x.id}">
     <div class="card-top"><span class="ic">${ic(c.id)}</span>${x.sub ? `<span class="pill">${ic('repeat',2)}Subscription</span>` : ''}${x.note ? `<span class="pill ttl" style="max-width:55%">${esc(x.note)}</span>` : ''}</div>
     <div class="row meta"><span>${c.name}</span><span>${dl}</span></div>
     <div class="row main"><span class="ttl">${esc(x.title || c.name)}</span><span class="amt">−${fmt(x.amount)}</span></div>
@@ -534,7 +653,7 @@ function renderHome(){
   const cls = ratio > 1 ? 'over' : ratio > .85 ? 'warn' : '';
   return header() + periodBlock('Expenses') + `
     <div class="summary">
-      <div class="sum-row"><div class="big-num">${fmt(total)}</div>${limit > 0 ? `<div class="mute">of ${fmt0(limit)}</div>` : ''}</div>
+      <div class="sum-row"><div class="big-num" data-count="${total}">${fmt(total)}</div>${limit > 0 ? `<div class="mute">of ${fmt0(limit)}</div>` : ''}</div>
       ${limit > 0 ? `<div class="bar"><i class="${cls}" style="width:${Math.min(ratio,1)*100}%"></i></div>` : ''}
       <div class="sum-meta">${limit > 0 ? (left >= 0 ? `<span>${fmt0(left)} left</span>` : `<span class="neg">${fmt0(-left)} over budget</span>`) : '<span>No budget set</span>'}
         <span>${list.length} expense${list.length === 1 ? '' : 's'}</span></div>
@@ -558,10 +677,10 @@ function renderStats(){
   const limit = period === 'week' ? D.settings.weekly : D.settings.monthly;
   const pace = avg * days.length;
   const dense = days.length > 7;
-  const bars = daily.map(x => {
+  const bars = daily.map((x, i) => {
     const lbl = dense ? ((x.d.getDate() === 1 || x.d.getDate() % 5 === 0) ? x.d.getDate() : '') : DAYS[x.d.getDay()].slice(0,1);
     const h = x.v ? Math.max(x.v/max*100, 4) : 3;
-    return `<div class="col" title="${x.k}: ${fmt(x.v)}"><div class="bw"><div class="b ${!x.v ? 'zero' : ''} ${x.k === tk ? 'today' : ''}" style="height:${h}%"></div></div><div class="lb">${lbl}</div></div>`;
+    return `<div class="col" title="${x.k}: ${fmt(x.v)}"><div class="bw"><div class="b ${!x.v ? 'zero' : ''} ${x.k === tk ? 'today' : ''}" style="height:${h}%;--i:${i}"></div></div><div class="lb">${lbl}</div></div>`;
   }).join('');
   const cats = CATS.map(c => ({c, v: sum(list.filter(x => x.cat === c.id))})).filter(x => x.v > 0).sort((a,b) => b.v - a.v);
   const merch = {}; list.forEach(x => { const k = (x.title || cat(x.cat).name).trim(); merch[k] = (merch[k]||0) + +x.amount; });
@@ -575,7 +694,7 @@ function renderStats(){
     <div class="panel"><h3>Daily spend <span>${offset === 0 && limit > 0 ? `On pace for ${fmt0(pace)}` : (biggest ? 'Biggest: ' + fmt0(biggest.amount) : '')}</span></h3>
       <div class="chart ${dense ? 'dense' : ''}">${bars}</div></div>
     <div class="panel"><h3>By category <span>${cats.length} categor${cats.length === 1 ? 'y' : 'ies'}</span></h3>
-      ${cats.length ? cats.map(x => `<div class="catrow" style="--c:${x.c.color}"><div class="t"><span><i class="dot"></i>${x.c.name}</span><span>${fmt(x.v)} · ${Math.round(x.v/total*100)}%</span></div><div class="track"><i style="width:${x.v/cats[0].v*100}%"></i></div></div>`).join('') : '<div class="mute" style="font-size:14px">No spending in this period.</div>'}
+      ${cats.length ? cats.map(x => `<div class="catrow" style="${catVars(x.c.id)}"><div class="t"><span><i class="dot"></i>${x.c.name}</span><span>${fmt(x.v)} · ${Math.round(x.v/total*100)}%</span></div><div class="track"><i style="width:${x.v/cats[0].v*100}%"></i></div></div>`).join('') : '<div class="mute" style="font-size:14px">No spending in this period.</div>'}
     </div>
     ${top.length ? `<div class="panel"><h3>Top places <span>where it went</span></h3>${top.map(([k,v]) => `<div class="mrow"><span class="ttl">${esc(k)}</span><span>${fmt(v)}</span></div>`).join('')}</div>` : ''}`;
 }
@@ -595,11 +714,11 @@ function renderSubs(){
     <div class="eyebrow">Recurring</div>
     <div class="headline">Subs</div>
     <div class="summary">
-      <div class="sum-row"><div class="big-num">${fmt(monthly)}</div><div class="mute">per month</div></div>
+      <div class="sum-row"><div class="big-num" data-count="${monthly}">${fmt(monthly)}</div><div class="mute">per month</div></div>
       <div class="sum-meta"><span>${fmt0(monthly*12)} a year</span><span>${subs.length} active</span></div>
     </div>
-    <div class="stack">${subs.length ? subs.map(s => { const c = cat(s.cat); return `
-      <button class="card" style="--c:${c.color}" data-act="editSub" data-id="${s.id}">
+    <div class="stack">${subs.length ? subs.map((s, i) => { const c = cat(s.cat); return `
+      <button class="card ${animate ? 'enter' : ''}" style="${catVars(c.id)};--i:${i}" data-act="editSub" data-id="${s.id}">
         <div class="card-top"><span class="ic">${ic(c.id)}</span><span class="pill">${ic('repeat',2)}${F[s.freq]}</span></div>
         <div class="row meta"><span>${c.name}</span><span>${dueLabel(s.next)}</span></div>
         <div class="row main"><span class="ttl">${esc(s.name)}</span><span class="amt">−${fmt(s.amount)}</span></div>
@@ -609,18 +728,43 @@ function renderSubs(){
     <p class="note" style="text-align:center;margin-top:12px">Payments are added to your expenses on the due date, the next time you open the app.</p>`;
 }
 
+function previewHTML(){
+  const sample = [['food','Food','Shake Shack','58.75'],['cafe','Cafe','Starbucks','27.00'],['groceries','Groceries','Carrefour','212.40']];
+  return `<div class="preview" id="themePreview">${sample.map(([id,n,t,a]) => `<div class="card" style="${catVars(id)}"><div class="row meta"><span>${n}</span><span>Monday</span></div><div class="row main"><span class="ttl">${t}</span><span class="amt">−AED ${a}</span></div></div>`).join('')}</div>`;
+}
 function renderSettings(){
   const st = D.settings;
   const opt = (v, cur, label) => `<option value="${v}" ${String(v) === String(cur) ? 'selected' : ''}>${label}</option>`;
+  const pal = palette();
+  const segBtns = (key, items, cur) => items.map(([v,l]) => `<button data-theme-key="${key}" data-theme-val="${v}" class="${String(cur) === String(v) ? 'on' : ''}">${l}</button>`).join('');
+  const presetBtn = (k, p) => { const c = p.colors; return `<button class="preset ${T.preset === k ? 'on' : ''}" data-preset="${k}"><i style="background:conic-gradient(${c[0]} 0 33%, ${c[Math.min(3,c.length-1)]} 0 66%, ${c[Math.min(5,c.length-1)]} 0)"></i>${p.name}</button>`; };
   return header() + `
     <div class="eyebrow">Your account</div>
     <div class="headline">Settings</div>
+
+    <div class="gtitle">Appearance</div>
+    <div class="group">
+      <div class="srow col">${previewHTML()}</div>
+      <div class="srow">Mode<div class="seg">${segBtns('mode', [['light','Light'],['dark','Dark'],['auto','Auto']], T.mode)}</div></div>
+      <div class="srow">Cards<div class="seg">${segBtns('gradient', [['false','Solid'],['true','Gradient']], T.gradient)}</div></div>
+      <div class="srow col"><span>Themes</span>
+        <div class="presets">${Object.entries(PRESETS).map(([k,p]) => presetBtn(k,p)).join('')}
+          ${T.custom ? presetBtn('custom', {name:'Custom', colors:T.custom}) : ''}</div></div>
+      <div class="srow col"><span class="lbl">Your colors<small>Tap a color to change it. Categories use them in order.</small></span>
+        <div class="mycolors">${pal.slice(0,8).map((c,i) => `<label class="sw" style="background:${c}" aria-label="Color ${i+1}"><input type="color" value="${c}" data-ci="${i}"></label>`).join('')}
+          <button class="swbtn" data-act="addColor" aria-label="Add color" ${pal.length >= 8 ? 'disabled' : ''}>${ic('plus',2)}</button>
+          <button class="swbtn" data-act="rmColor" aria-label="Remove last color" ${pal.length <= 2 ? 'disabled' : ''}>${ic('minus',2)}</button></div></div>
+      <label class="srow"><span class="lbl">Haptic feedback<small>Light taps on iPhone (iOS 18 or later)</small></span><input type="checkbox" switch data-theme-toggle="haptics" ${T.haptics ? 'checked' : ''}></label>
+      <label class="srow"><span class="lbl">Motion<small>Card animations</small></span><input type="checkbox" switch data-theme-toggle="motion" ${T.motion ? 'checked' : ''}></label>
+    </div>
+
     <div class="gtitle">Budget</div>
     <div class="group">
       <label class="srow">Weekly budget<input type="number" inputmode="decimal" min="0" step="1" data-set="weekly" value="${st.weekly}"></label>
       <label class="srow">Monthly budget<input type="number" inputmode="decimal" min="0" step="1" data-set="monthly" value="${st.monthly}"></label>
       <label class="srow">Week starts on<select data-set="weekStart">${opt(1,st.weekStart,'Monday')}${opt(0,st.weekStart,'Sunday')}${opt(6,st.weekStart,'Saturday')}</select></label>
     </div>
+
     <div class="gtitle">Security</div>
     <div class="group">
       <div class="srow">Signed in as<span class="v">${esc(user)}</span></div>
@@ -628,12 +772,16 @@ function renderSettings(){
       <button class="srow" data-act="changePin">Change PIN${ic('chev')}</button>
       <button class="srow" data-act="lockNow">Lock now${ic('lock')}</button>
     </div>
+
     <div class="gtitle">iPhone</div>
     <div class="group">
-      <div class="srow">Running as<span class="v">${isStandalone() ? 'Home Screen app' : 'Safari tab'}</span></div>
-      <button class="srow" data-act="actionHelp">Action Button & Shortcut setup${ic('bolt')}</button>
+      <div class="srow">Opened in<span class="v">${isStandalone() ? 'Home Screen app' : 'Safari'}</span></div>
+      <div class="srow">Saving data<span class="v ${STORAGE_OK ? 'ok' : 'bad'}">${STORAGE_OK ? 'Working' : 'Blocked'}</span></div>
+      <div class="srow">Accounts here<span class="v">${accountCount()}</span></div>
+      <button class="srow" data-act="actionHelp">Action Button & Home Screen setup${ic('bolt')}</button>
       <button class="srow" data-act="copyLink">Copy quick-add link${ic('chev')}</button>
     </div>
+
     <div class="gtitle">Data</div>
     <div class="group">
       <button class="srow" data-act="exportData">Export backup${ic('chev')}</button>
@@ -649,12 +797,27 @@ function renderNav(){
   $('#nav').innerHTML = items.map(([v,i,l]) => `<button class="${view === v ? 'on' : ''}" data-nav="${v}" aria-label="${l}">${ic(i,2)}</button>`).join('');
 }
 
-function render(scrollTop){
+function countUp(el){
+  const to = parseFloat(el.dataset.count) || 0, from = lastTotal;
+  if (!motionOn() || Math.abs(to - from) < .01){ el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 700;
+  const step = t => { const p = Math.min((t - t0)/dur, 1), e = 1 - Math.pow(1-p, 3); el.textContent = fmt(from + (to-from)*e); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function render(newView){
   if (!user) return;
   const fn = {home:renderHome, stats:renderStats, subs:renderSubs, settings:renderSettings}[view];
-  $('#view').innerHTML = fn();
+  const v = $('#view');
+  const keepScroll = view === 'settings' && !newView ? window.scrollY : null;
+  v.innerHTML = fn();
   renderNav();
-  if (scrollTop) { $('#view').classList.remove('fade'); void $('#view').offsetWidth; $('#view').classList.add('fade'); window.scrollTo(0,0); }
+  const num = v.querySelector('.big-num[data-count]');
+  if (num){ countUp(num); lastTotal = parseFloat(num.dataset.count) || 0; }
+  if (newView){
+    if (motionOn()){ v.classList.remove('view-in'); void v.offsetWidth; v.classList.add('view-in'); }
+    window.scrollTo(0,0);
+  } else if (keepScroll != null) window.scrollTo(0, keepScroll);
+  animate = false; lastAdded = null;
 }
 
 /* ================= Sheets ================= */
@@ -664,7 +827,7 @@ function openSheet(html){
 }
 function closeSheet(){ $('#sheetWrap').classList.remove('open'); $('#sheetWrap').setAttribute('aria-hidden','true'); }
 const sheetHead = t => `<div class="sh-head"><h2>${t}</h2><button class="circle" data-act="close" aria-label="Close">${ic('close',2)}</button></div>`;
-const catChips = sel => `<div class="chips" id="fCats">${CATS.map(c => `<button class="chipc ${c.id === sel ? 'on' : ''}" data-cat="${c.id}" style="--c:${c.color}"><span class="d">${ic(c.id)}</span>${c.name}</button>`).join('')}</div>`;
+const catChips = sel => `<div class="chips" id="fCats">${CATS.map(c => `<button class="chipc ${c.id === sel ? 'on' : ''}" data-cat="${c.id}" style="${catVars(c.id)}"><span class="d">${ic(c.id)}</span>${c.name}</button>`).join('')}</div>`;
 const selCat = () => ($('#fCats .chipc.on') || {}).dataset?.cat || 'other';
 function readAmount(id){ const v = parseFloat(String($(id).value).replace(/,/g,'.').replace(/[^\d.]/g,'')); return isFinite(v) ? round2(v) : NaN; }
 
@@ -682,20 +845,20 @@ function openExpense(id, pre = {}){
     </div>
     <button class="btn" data-act="saveExp" data-id="${x ? x.id : ''}">${x ? 'Save changes' : 'Add expense'}</button>
     ${x ? `<button class="btn-text danger" data-act="delExp" data-id="${x.id}">Delete expense</button>` : ''}`);
-  if (!x) setTimeout(() => { try{ $('#fAmt').focus(); }catch(e){} }, 360);
+  if (!x) setTimeout(() => { try{ $('#fAmt').focus(); }catch(e){} }, 380);
 }
 function saveExpense(id){
   const amount = readAmount('#fAmt');
-  if (!(amount > 0)) { toast('Enter an amount'); return $('#fAmt').focus(); }
+  if (!(amount > 0)) { toast('Enter an amount'); haptic(true); return $('#fAmt').focus(); }
   const date = $('#fDate').value || today();
   const data = {title: $('#fTitle').value.trim(), amount, cat: selCat(), date, note: $('#fNote').value.trim()};
   if (id){ Object.assign(D.expenses.find(e => e.id === id), data); toast('Saved'); }
-  else { D.expenses.push({id: uid(), created: Date.now(), ...data}); toast(`${fmt(amount)} added`); }
-  save(); closeSheet();
-  if (!id){ // jump to the period containing the new expense
+  else {
+    const nid = uid(); D.expenses.push({id: nid, created: Date.now(), ...data}); lastAdded = nid; toast(`${fmt(amount)} added`);
     const r = range(); if (date < ymd(r.s) || date > ymd(r.e)) offset = 0;
+    if (view !== 'home'){ view = 'home'; }
   }
-  render();
+  save(); closeSheet(); render();
 }
 
 function openSub(id){
@@ -716,16 +879,24 @@ function openSub(id){
 }
 function saveSub(id){
   const amount = readAmount('#fAmt'), name = $('#fTitle').value.trim();
-  if (!(amount > 0)) return toast('Enter an amount');
-  if (!name) return toast('Give it a name');
+  if (!(amount > 0)){ haptic(true); return toast('Enter an amount'); }
+  if (!name){ haptic(true); return toast('Give it a name'); }
   const next = $('#fDate').value || today();
   const freq = ($('#fFreq .on') || {}).dataset?.freq || 'monthly';
   const data = {name, amount, cat: selCat(), freq, next, anchor: parse(next).getDate()};
   if (id) Object.assign(D.subs.find(s => s.id === id), data);
   else D.subs.push({id: uid(), ...data});
   const added = processRecurring();
-  save(); closeSheet(); render();
+  save(); closeSheet(); animate = true; render();
   toast(added ? `Saved · ${added} payment${added>1?'s':''} logged` : 'Subscription saved');
+}
+
+let confirmFn = null;
+function askConfirm(title, msg, okLabel, fn){
+  confirmFn = fn;
+  openSheet(sheetHead(title) + `<p class="note" style="font-size:15px;color:var(--ink)">${msg}</p>
+    <button class="btn" data-act="confirmOk" style="background:var(--danger);color:#fff">${okLabel}</button>
+    <button class="btn-text" data-act="close">Cancel</button>`);
 }
 
 function openMenu(){
@@ -738,22 +909,18 @@ function openMenu(){
 }
 
 function quickLink(){ return location.origin + location.pathname + '?add=1'; }
+function appLink(){ return location.origin + location.pathname; }
 function openActionHelp(){
   openSheet(sheetHead('Action Button') + `
-    <p class="note">Your iPhone keeps Safari data and Home Screen app data separate. Pick one way to open the app and stick with it, so your expenses stay in one place.</p>
-    <span class="flabel" style="font-weight:600;color:var(--ink)">Option A · Safari (quick-add works)</span>
+    <p class="note">iPhone can keep separate data for each way a site is opened. To make sure your profile is always there, open the app through <b>one shortcut</b> for both the Action Button and the Home Screen.</p>
     <ol class="steps">
-      <li>In Safari, tap <b>Share → Add to Home Screen</b> and turn <b>Open as Web App</b> off.</li>
-      <li>In <b>Shortcuts</b>, make a new shortcut with the <b>Open URLs</b> action and paste:<span class="code">${esc(quickLink())}</span></li>
-      <li>Go to <b>Settings → Action Button</b>, swipe to <b>Shortcut</b> and pick it.</li>
+      <li>Delete any old Spend icon from your Home Screen (press and hold → Remove Bookmark). Your data isn't touched.</li>
+      <li>In <b>Shortcuts</b>, tap <b>+</b>, add <b>Open URLs</b> and paste:<span class="code">${esc(quickLink())}</span></li>
+      <li>Rename it <b>Log expense</b>. Tap the shortcut's <b>ⓘ</b> → <b>Add to Home Screen</b> for your app icon.</li>
+      <li>iPhone <b>Settings → Action Button</b> → swipe to <b>Shortcut</b> → pick <b>Log expense</b>.</li>
     </ol>
-    <span class="flabel" style="font-weight:600;color:var(--ink)">Option B · Full-screen app</span>
-    <ol class="steps">
-      <li>Add to Home Screen with <b>Open as Web App</b> on.</li>
-      <li>In Shortcuts, add <b>Open App</b> and look for <b>Spend</b> in the list. If it's there, pick it and assign the shortcut to the Action Button.</li>
-      <li>If it's not listed, use Option A.</li>
-    </ol>
-    <p class="note">You're currently using: <b>${isStandalone() ? 'the Home Screen app' : 'Safari'}</b>. To move data between the two, use Export and Import backup in Settings.</p>
+    <p class="note">Still asked to sign up each time? Check that Safari is your default browser, you're not in Private Browsing, and <b>Settings → Apps → Safari → Block All Cookies</b> is off. If you use Safari Profiles, shortcuts open in your default profile.</p>
+    <p class="note">Right now: opened in <b>${isStandalone() ? 'Home Screen app' : 'Safari'}</b>, saving data <b>${STORAGE_OK ? 'works' : 'is blocked'}</b>, <b>${accountCount()}</b> account(s) here.</p>
     <button class="btn" data-act="copyLink">Copy quick-add link</button>`);
 }
 
@@ -767,63 +934,84 @@ function openChangePin(){
 async function savePin(){
   const accts = S.get('accounts', {}), a = accts[user];
   const o = $('#pOld').value, n = $('#pNew').value, n2 = $('#pNew2').value;
-  if (a.hash !== await hashPin(a.salt, o)) return toast('Current PIN is wrong');
-  if (!/^\d{4}$/.test(n)) return toast('New PIN must be 4 digits');
-  if (n !== n2) return toast("New PINs don't match");
+  if (a.hash !== await hashPin(a.salt, o)){ haptic(true); return toast('Current PIN is wrong'); }
+  if (!/^\d{4}$/.test(n)){ haptic(true); return toast('New PIN must be 4 digits'); }
+  if (n !== n2){ haptic(true); return toast("New PINs don't match"); }
   a.salt = rnd(); a.hash = await hashPin(a.salt, n); S.set('accounts', accts);
   closeSheet(); toast('PIN updated');
 }
 
-async function exportData(){
-  const payload = JSON.stringify({app:'week-spend', v:1, user, exported:new Date().toISOString(), data:D}, null, 1);
-  const name = `week-spend-${user}-${today()}.json`;
-  try{
-    const file = new File([payload], name, {type:'application/json'});
-    if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Week Spend backup'}); return; }
-  }catch(e){ if (e && e.name === 'AbortError') return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([payload], {type:'application/json'})); a.download = name;
-  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  toast('Backup saved');
+function exportData(){
+  const payload = JSON.stringify({app:'week-spend', v:1, user, exported:new Date().toISOString(), data:D, theme:T});
+  openSheet(sheetHead('Export backup') + `
+    <p class="note">Copy this backup and keep it in Notes or send it to yourself. Paste it into Import backup to restore.</p>
+    <textarea id="expText" class="field" readonly>${esc(payload)}</textarea>
+    <button class="btn" data-act="copyBackup">Copy backup</button>`);
+}
+async function copyBackup(){
+  const t = $('#expText');
+  try{ await navigator.clipboard.writeText(t.value); toast('Backup copied'); }
+  catch(e){ t.focus(); t.select(); toast('Selected. Tap Copy.'); }
 }
 function openImport(){
   openSheet(sheetHead('Import backup') + `
     <p class="note">Choose a backup file, or paste its contents. This replaces the expenses, subscriptions and budget for <b>${esc(user)}</b>.</p>
-    <label class="btn light" style="display:grid;place-items:center">Choose file<input id="impFile" type="file" accept="application/json,.json" hidden></label>
+    <label class="btn light" style="display:grid;place-items:center">Choose file<input id="impFile" type="file" accept="application/json,.json,.txt" hidden></label>
     <span class="flabel" style="margin-top:14px">Or paste</span>
     <textarea id="impText" class="field" placeholder='{"app":"week-spend", ...}'></textarea>
     <button class="btn" data-act="doImport">Import</button>`);
-  $('#impFile').addEventListener('change', async e => { const f = e.target.files[0]; if (f) { $('#impText').value = await f.text(); toast('File loaded — tap Import'); } });
+  $('#impFile').addEventListener('change', async e => { const f = e.target.files[0]; if (f) { $('#impText').value = await f.text(); toast('File loaded. Tap Import.'); } });
 }
 function doImport(){
   try{
     const j = JSON.parse($('#impText').value);
     const d = j.data || j;
     if (!Array.isArray(d.expenses)) throw new Error('bad');
-    if (!confirm(`Replace current data with ${d.expenses.length} expenses from this backup?`)) return;
-    D = {expenses:d.expenses, subs:d.subs||[], settings:{...DEF_SETTINGS, ...(d.settings||{})}};
-    save(); processRecurring(); closeSheet(); render(); toast('Backup imported');
-  }catch(e){ toast("That doesn't look like a Week Spend backup"); }
+    askConfirm('Replace data?', `Replace your current data with ${d.expenses.length} expenses from this backup?`, 'Replace', () => {
+      D = {expenses:d.expenses, subs:d.subs||[], settings:{...DEF_SETTINGS, ...(d.settings||{})}};
+      if (j.theme) { T = {...DEF_THEME, ...j.theme}; saveTheme(); }
+      save(); processRecurring(); closeSheet(); animate = true; render(); toast('Backup imported');
+    });
+  }catch(e){ haptic(true); toast("That doesn't look like a Week Spend backup"); }
 }
 
 async function copyLink(){
   const link = quickLink();
   try{ await navigator.clipboard.writeText(link); toast('Quick-add link copied'); }
-  catch(e){ prompt('Copy this link:', link); }
+  catch(e){ openSheet(sheetHead('Quick-add link') + `<p class="note">Press and hold to copy:</p><span class="code">${esc(link)}</span>`); }
+}
+
+/* ---------- Theme editing ---------- */
+function editablePalette(){
+  if (T.preset !== 'custom' || !Array.isArray(T.custom)) { T.custom = palette().slice(0, 8); T.preset = 'custom'; }
+  return T.custom;
+}
+function refreshThemeUI(){
+  const p = $('#themePreview'); if (p) p.outerHTML = previewHTML();
 }
 
 /* ================= Events ================= */
 document.addEventListener('click', e => {
+  if (e.target.closest('.haptic')) return;
   const k = e.target.closest('[data-key]');
-  if (k){ pinKey(k.dataset.key); return; }
+  if (k){ haptic(); pinKey(k.dataset.key); return; }
   const c = e.target.closest('[data-cat]');
-  if (c){ document.querySelectorAll('#fCats .chipc').forEach(b => b.classList.toggle('on', b === c)); return; }
+  if (c){ haptic(); document.querySelectorAll('#fCats .chipc').forEach(b => b.classList.toggle('on', b === c)); return; }
   const f = e.target.closest('[data-freq]');
-  if (f){ document.querySelectorAll('#fFreq button').forEach(b => b.classList.toggle('on', b === f)); return; }
+  if (f){ haptic(); document.querySelectorAll('#fFreq button').forEach(b => b.classList.toggle('on', b === f)); return; }
   const n = e.target.closest('[data-nav]');
-  if (n){ closeSheet(); if (view !== n.dataset.nav){ view = n.dataset.nav; render(true); } return; }
+  if (n){ haptic(); closeSheet(); if (view !== n.dataset.nav){ view = n.dataset.nav; animate = true; render(true); } return; }
+  const tk = e.target.closest('[data-theme-key]');
+  if (tk){
+    haptic();
+    const key = tk.dataset.themeKey, val = tk.dataset.themeVal;
+    T[key] = key === 'gradient' ? val === 'true' : val; saveTheme(); render(); return;
+  }
+  const pr = e.target.closest('[data-preset]');
+  if (pr){ haptic(); T.preset = pr.dataset.preset; saveTheme(); render(); return; }
   const a = e.target.closest('[data-act]');
   if (!a) return;
+  haptic();
   const id = a.dataset.id;
   switch (a.dataset.act){
     case 'lgNext': lgNext(); break;
@@ -834,43 +1022,53 @@ document.addEventListener('click', e => {
     case 'add': openExpense(); break;
     case 'edit': openExpense(id); break;
     case 'saveExp': saveExpense(id); break;
-    case 'delExp':
-      if (confirm('Delete this expense?')){ D.expenses = D.expenses.filter(x => x.id !== id); save(); closeSheet(); render(); toast('Deleted'); }
-      break;
+    case 'delExp': askConfirm('Delete expense?', 'This removes it from your spending.', 'Delete', () => { D.expenses = D.expenses.filter(x => x.id !== id); save(); closeSheet(); render(); toast('Deleted'); }); break;
     case 'addSub': openSub(); break;
     case 'editSub': openSub(id); break;
     case 'saveSub': saveSub(id); break;
-    case 'delSub':
-      if (confirm('Delete this subscription? Past payments stay in your expenses.')){ D.subs = D.subs.filter(x => x.id !== id); save(); closeSheet(); render(); toast('Deleted'); }
-      break;
-    case 'togglePeriod': period = period === 'week' ? 'month' : 'week'; offset = 0; render(); break;
-    case 'prev': offset--; render(); break;
-    case 'next': if (offset < 0){ offset++; render(); } break;
+    case 'delSub': askConfirm('Delete subscription?', 'Past payments stay in your expenses.', 'Delete', () => { D.subs = D.subs.filter(x => x.id !== id); save(); closeSheet(); render(); toast('Deleted'); }); break;
+    case 'togglePeriod': period = period === 'week' ? 'month' : 'week'; offset = 0; animate = true; render(); break;
+    case 'prev': offset--; animate = true; render(); break;
+    case 'next': if (offset < 0){ offset++; animate = true; render(); } break;
     case 'menu': openMenu(); break;
     case 'close': closeSheet(); break;
+    case 'confirmOk': { const fn = confirmFn; confirmFn = null; if (fn) fn(); break; }
     case 'lockNow': lockApp(); break;
-    case 'logout': if (confirm('Log out?')) lockApp(); break;
+    case 'logout': askConfirm('Log out?', 'You can log back in with your PIN.', 'Log out', lockApp); break;
     case 'changePin': openChangePin(); break;
     case 'savePin': savePin(); break;
     case 'exportData': exportData(); break;
+    case 'copyBackup': copyBackup(); break;
     case 'importData': openImport(); break;
     case 'doImport': doImport(); break;
     case 'copyLink': copyLink(); break;
     case 'actionHelp': openActionHelp(); break;
+    case 'addColor': { const p = editablePalette(); if (p.length < 8){ const base = PRESETS.classic.colors; p.push(base.find(c => !p.includes(c)) || '#cccccc'); saveTheme(); render(); } break; }
+    case 'rmColor': { const p = editablePalette(); if (p.length > 2){ p.pop(); saveTheme(); render(); } break; }
     case 'deleteAcct':
-      if (confirm(`Delete "${user}" and all its data from this iPhone? This can't be undone.`)){
+      askConfirm('Delete account?', `Delete "${esc(user)}" and all its data from this device. This can't be undone.`, 'Delete everything', () => {
         const accts = S.get('accounts', {}); delete accts[user]; S.set('accounts', accts);
         S.del('data_'+user); if (S.get('last') === user) S.del('last');
         lockApp(); toast('Account deleted');
-      }
+      });
       break;
   }
 });
+// Live color editing: update preview while the picker is open, save when it closes.
+document.addEventListener('input', e => {
+  const ci = e.target.closest('[data-ci]');
+  if (!ci) return;
+  const p = editablePalette(), i = +ci.dataset.ci;
+  if (isHex(ci.value)){ p[i] = ci.value; ci.parentElement.style.background = ci.value; applyTheme(); refreshThemeUI(); }
+});
 document.addEventListener('change', e => {
+  const ci = e.target.closest('[data-ci]');
+  if (ci){ saveTheme(); render(); toast('Colors saved'); return; }
+  const tg = e.target.closest('[data-theme-toggle]');
+  if (tg){ T[tg.dataset.themeToggle] = tg.checked; saveTheme(); if (tg.checked && tg.dataset.themeToggle === 'haptics') haptic(); return; }
   const t = e.target.closest('[data-set]');
   if (!t || !D) return;
-  const v = Math.max(0, parseFloat(t.value) || 0);
-  D.settings[t.dataset.set] = v; save(); touchSession();
+  D.settings[t.dataset.set] = Math.max(0, parseFloat(t.value) || 0); save(); touchSession();
   toast('Saved');
 });
 document.addEventListener('keydown', e => {

@@ -1,5 +1,5 @@
 // Week Spend service worker: caches the app so it opens with no internet.
-const CACHE = 'week-spend-v1';
+const CACHE = 'week-spend-v2';
 const FILES = [
   './',
   './index.html',
