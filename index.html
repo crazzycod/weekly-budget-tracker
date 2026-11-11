@@ -253,6 +253,73 @@ textarea.field{min-height:140px;font:13px/1.4 ui-monospace,Menlo,monospace;resiz
 
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translate(-50%,-160%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:30px;font-size:14px;z-index:80;transition:transform .4s var(--spring);max-width:90vw;text-align:center}
 #toast.show{transform:translate(-50%,0)}
+/* Header: buddy + weather */
+.hr{display:flex;align-items:center;gap:4px;min-width:0}
+.buddy{position:relative;width:44px;height:44px;display:grid;place-items:center;flex:none;border-radius:14px}
+.buddy img,.lg-buddy,.bpick img{image-rendering:pixelated;image-rendering:crisp-edges}
+.buddy img{width:40px;height:40px;animation:bob 1.6s steps(2,end) infinite}
+.buddy.jump img{animation:jump .6s var(--spring)}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes jump{0%{transform:none}35%{transform:translateY(-10px) rotate(-8deg)}70%{transform:none}85%{transform:translateY(-3px)}100%{transform:none}}
+#bubble{position:absolute;z-index:30;top:calc(env(safe-area-inset-top) + 64px);left:22px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.35;padding:10px 14px;border-radius:18px;border-top-left-radius:5px;width:max-content;max-width:min(250px,72vw);box-shadow:0 10px 24px rgba(0,0,0,.18);transform-origin:12px -6px;animation:bubIn .5s var(--spring) both;pointer-events:none}
+#bubble.out{animation:bubOut .25s ease both}
+@keyframes bubIn{from{opacity:0;transform:scale(.5) translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes bubOut{to{opacity:0;transform:scale(.9) translateY(-4px)}}
+.lg-buddy{display:block;width:52px;height:52px;margin:0 auto 6px;animation:bob 1.6s steps(2,end) infinite}
+.wx{display:flex;align-items:center;gap:5px;height:36px;padding:0 12px 0 9px;border-radius:20px;background:var(--soft);font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;min-width:0;transition:transform .2s var(--spring)}
+.wx:active{transform:scale(.94)}
+.wx svg{width:19px;height:19px;flex:none}
+.wx small{font-size:12.5px;font-weight:400;color:var(--mute);max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wx.ld svg{animation:pulse 1s ease-in-out infinite alternate}
+@keyframes pulse{to{opacity:.35}}
+.wxbig{display:flex;align-items:center;gap:16px;margin:4px 0 16px}
+.wxbig .wxi{width:64px;height:64px;border-radius:22px;background:var(--field);display:grid;place-items:center}
+.wxbig .wxi svg{width:34px;height:34px}
+.wxbig b{font-size:46px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.wxgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.wxgrid div{background:var(--field);border-radius:16px;padding:10px 12px}
+.wxgrid small{display:block;font-size:12px;color:var(--mute)}
+.wxgrid b{font-size:18px;font-weight:500}
+.mlist .res{font-size:16px}
+.mlist .res small{color:var(--mute);font-size:13px;margin-left:auto;text-align:right}
+/* Buddy picker */
+.buddies{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.bpick{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 6px;border-radius:16px;font-size:11px;color:var(--mute);border:2px solid transparent;transition:transform .2s var(--spring)}
+.bpick:active{transform:scale(.92)}
+.bpick img{width:40px;height:40px}
+.bpick.on{background:var(--field);border-color:var(--ink);color:var(--ink)}
+/* Days */
+.cal{padding:16px 12px 14px}
+.cal-h{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.cal-h b{font-size:17px;font-weight:500;letter-spacing:-.01em}
+.cal-h .mute{font-size:13px;margin-right:auto;font-variant-numeric:tabular-nums}
+.cal-nav{display:flex;gap:6px}
+.cal-nav button{width:32px;height:32px;border-radius:50%;background:var(--field);display:grid;place-items:center}
+.cal-nav svg{width:15px;height:15px}
+.cal-nav button:disabled{opacity:.3}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.cal-g.wd span{font-size:12px;color:var(--mute);padding:2px 0 6px}
+.cday{height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:15px;font-variant-numeric:tabular-nums}
+.cday span{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;transition:background .2s,color .2s,transform .25s var(--spring)}
+.cday.today span{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.cday.sel span{background:var(--ink);color:var(--bg);box-shadow:none}
+.cday:active span{transform:scale(.86)}
+.cday:disabled{opacity:.3}
+.lv{display:block;width:5px;height:5px;border-radius:50%}
+.lv.lo{background:var(--mute);width:4px;height:4px}
+.lv.mid{background:var(--ink)}
+.lv.hi{background:var(--danger);width:6px;height:6px}
+.cal-key{display:flex;gap:14px;justify-content:center;font-size:11.5px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
+.cal-key span{display:flex;align-items:center;gap:5px}
+.dayhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:22px 2px 12px}
+.dayhead .mute{font-size:15px}
+.dh-date{font-size:36px;font-weight:500;letter-spacing:-.045em;line-height:1.05}
+.dh-tot{text-align:right;min-width:0}
+.dh-tot b{display:block;font-size:22px;font-weight:500;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.dh-tot span{font-size:12px;color:var(--mute)}
+.catpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.cpill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border-radius:20px;background:var(--cbg,var(--c));color:var(--ck,var(--cardink));font-size:13px;font-variant-numeric:tabular-nums}
+.cpill svg{width:15px;height:15px}
 .haptic{position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
 </style>
 </head>
@@ -261,6 +328,7 @@ textarea.field{min-height:140px;font:13px/1.4 ui-monospace,Menlo,monospace;resiz
   <section id="login"></section>
   <main id="main" hidden><div id="view"></div></main>
   <nav id="nav" hidden aria-label="Sections"></nav>
+  <div id="bubble" role="status" hidden></div>
 </div>
 <div id="sheetWrap" aria-hidden="true"><div class="scrim" data-act="close"></div><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
 <div id="toast" role="status"></div>
@@ -309,8 +377,19 @@ const ICONS = {
   back:'<path d="M9 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6-7 6-7zM12.5 9.5l5 5M17.5 9.5l-5 5"/>',
   bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/>',
   chev:'<path d="m9 6 6 6-6 6"/>',
-  arrow:'<path d="M1 2v3a3 3 0 0 0 3 3h32m-5-4 5 4-5 4"/>'
+  arrow:'<path d="M1 2v3a3 3 0 0 0 3 3h32m-5-4 5 4-5 4"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  wx_sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
+  wx_moon:'<path d="M19.5 14.6A7.8 7.8 0 1 1 9.4 4.5a6.2 6.2 0 0 0 10.1 10.1z"/>',
+  wx_cloud:'<path d="M7 18.5h10a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 9.6 4.5 4.5 0 0 0 7 18.5z"/>',
+  wx_partly:'<path d="M8.5 3v1.3M3.7 5.2l.9.9M2.3 9.8h1.3M13.3 5.2l-.9.9"/><path d="M5.5 12.2a3.7 3.7 0 0 1 6.4-4.3"/><path d="M9.5 20.5h8a3.6 3.6 0 0 0 .5-7.15 4.9 4.9 0 0 0-9.2-.8 4 4 0 0 0 .7 7.95z"/>',
+  wx_rain:'<path d="M7 15.5h10a3.8 3.8 0 0 0 .6-7.55A5.2 5.2 0 0 0 7.6 7.1 4.2 4.2 0 0 0 7 15.5z"/><path d="m8.5 18.5-1 2.5M12.5 18.5l-1 2.5M16.5 18.5l-1 2.5"/>',
+  wx_snow:'<path d="M7 15.5h10a3.8 3.8 0 0 0 .6-7.55A5.2 5.2 0 0 0 7.6 7.1 4.2 4.2 0 0 0 7 15.5z"/><path d="M8 19.5h.01M12 21h.01M16 19.5h.01"/>',
+  wx_storm:'<path d="M7 15.5h10a3.8 3.8 0 0 0 .6-7.55A5.2 5.2 0 0 0 7.6 7.1 4.2 4.2 0 0 0 7 15.5z"/><path d="m12.8 15.5-2 3.2h3l-2 3.3"/>',
+  wx_fog:'<path d="M4 8.5h16M6.5 12.5h11M4 16.5h16"/>',
+  wx_pin:'<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>'
 };
+const wic = n => ic('wx_'+n, 1.7);
 const ic = (n, sw=1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
 
 const CATS = [
@@ -333,7 +412,7 @@ const PRESETS = {
   citrus: {name:'Citrus',  colors:['#eaef9b','#c9f0a8','#ffe08a','#b8ebc9','#f6f2ae','#d9f59c']},
   paper:  {name:'Paper',   colors:['#ecebef','#dddce2','#d0cfd6','#e6e1d8','#d9dfe0','#e2dce6']}
 };
-const DEF_THEME = {preset:'classic', custom:null, gradient:false, mode:'light', haptics:true, motion:true};
+const DEF_THEME = {preset:'classic', custom:null, gradient:false, mode:'light', haptics:true, motion:true, buddy:'sprout', buddyOn:true, greet:true};
 let T = {...DEF_THEME, ...S.get('theme', {})};
 const isHex = v => /^#[0-9a-f]{6}$/i.test(v);
 function palette(){
@@ -376,6 +455,134 @@ function haptic(strong){
     hapLb.click();
     if (strong) setTimeout(() => hapLb.click(), 70);
   }catch(e){}
+}
+
+/* ================= Pixel buddy ================= */
+const SPR = {"base":{"k":"#1f1b2d","w":"#f7f6fb","s":"#cfcbdc","e":"#1f1b2d","p":"#f5a3b5"},"sprites":{"sprout":{"name":"Sprout","fill":"w","pal":{"a":"#8fd16a","b":"#4e9a3c"},"px":["....kk....kk....","...kaak..kaak...","....kbakkabk....","...kkkkbbkkkk...","..kwwwwwwwwwwk..","..kwwwwwwwwwwk..","..kwwwewwewwwk..","..kwwwewwewwwk..","..kwwpwwwwpwwk..","..ksswwwwwwssk..","...kkwwwwwwkk...","...kwwwwwwwwk...","...kwkwwwwkwk...","...kkswwwwskk...","....kwk..kwk....","....kkk..kkk...."]},"cat":{"name":"Mango","fill":"a","pal":{"a":"#f4a95e","c":"#d47f3a","b":"#fde0bb"},"px":["................","..kk........kk..","..kak......kak..","..kaakkkkkkaak..","..kaaaaaaaaaak..","..kaaaaaaaaaak..","..kaaaeaaeaaak..","..kaaaeaaeaaak..","..kapabkkbapak..","..kccabbbbacck..","...kkaaaaaakk...","...kabbbbbbak.kk","...kakbbbbkakkak","...kkcbbbbckkak.","....kak..kakkk..","....kkk..kkk...."]},"frog":{"name":"Pond","fill":"w","pal":{"a":"#7ccf7a","b":"#4f9c55","c":"#ffffff"},"px":["...kkk....kkk...","..kcckk..kkcck..","..kcekakkakeck..","..kkkaaaaaakkk..","..kaaaaaaaaaak..","..kakwwwwwwkak..","..kakwewwewkak..","..kakwewwewkak..","..kakpwwwwpkak..","..kbbkkkkkkbbk..","...kkaaaaaakk...","...kaaaaaaaak...","...kakaaaakak...","...kkbaaaabkk...","....kak..kak....","....kkk..kkk...."]},"ghost":{"name":"Boo","fill":"w","pal":{"a":"#e9e6f5"},"px":["................","................",".....kkkkkk.....","....kwwwwwwk....","...kwwwwwwwwk...","..kwwwwwwwwwwk..","..kwwwewwewwwk..","..kwwwewwewwwk..","..kwwpwwwwpwwk..",".kwwwwwkkwwwwwk.",".kwwwwwwwwwwwwk.","..kwwwwwwwwwwk..","..kswwwwwwwwsk..","..ksswwsswwssk..","..kskksk.kskksk.","..k..kk...kk..k."]},"cactus":{"name":"Spike","fill":"a","pal":{"a":"#79c27d","b":"#4d9459","c":"#ff8fb1","d":"#ffd36e"},"px":["......kkkk......",".....kcdck......","......kckk......","....kkkkkkkk....","...kaaaaaaaak...","...kabaaaabak...","...kaaeaaeaak...",".kkkaaeaaeaakkk.","kabkpaaaaaapkbak","kaakaabaabaakaak","kbaaaaaaaaaaaabk",".kkkaaaaaaaakkk.","...kabaaaabak...","..kkkkkkkkkkkk..","..kddddddddddk..","...kkkkkkkkkk..."]},"penguin":{"name":"Pip","fill":"w","pal":{"a":"#3c3f63","b":"#ffb347","c":"#5a5e8a"},"px":["................",".....kkkkkk.....","....kaaaaaak....","...kaaaaaaaak...","..kaawwwwwwaak..","..kawwewwewwak..","..kawwewwewwak..","..kawpwbbwpwak..","..kaawwkkwwaak..",".kaaawwwwwwaaak.",".kcakwwwwwwkack.","..kkkwwwwwwkkk..","...kawwwwwwak...","...kaawwwwaak...","....kbbkkbbk....","....kkkk.kkk...."]},"bunny":{"name":"Mochi","fill":"w","pal":{"a":"#f5a3b5"},"px":["...kk......kk...","..kwak....kawk..","..kwak....kawk..","..kwakkkkkkawk..","..kwwwwwwwwwwk..","..kwwwwwwwwwwk..","..kwwwewwewwwk..","..kwwwewwewwwk..","..kwwpwkkwpwwk..","..ksswwwwwwssk..","...kkwwwwwwkk...","...kwwwwwwwwk...","...kwkwwwwkwkkk.","...kkswwwwskkwk.","....kwk..kwkkk..","....kkk..kkk...."]},"robot":{"name":"Bolt","fill":"a","pal":{"a":"#b9bfd3","b":"#7d84a3","c":"#6fe3d2","d":"#ff6b6b"},"px":[".......kk.......",".......kdk......",".......kk.......","...kkkkkkkkkk...","..kaaaaaaaaaak..","..kakkkkkkkkak..",".kkakccccccckakk","kbkakckcckcckakb","kbkakccccccckakb",".kkakkkkkkkkakk.","..kbbbbbbbbbbk..","...kkaaaaaakk...","...kakbddbkak...","...kkaaaaaakk...","....kbk..kbk....","....kkk..kkk...."]},"cap":{"name":"Sami","fill":"w","pal":{"a":"#5b8def","b":"#3c69c4","c":"#ffffff"},"px":["................","....kkkkkkk.....","...kaaaacaak....","..kaaaaaaaaak...","..kbbbbbbbbbbkk.","..kkkkkkkkkkkkbk","..kwwwewwewwwkk.","..kwwwewwewwwk..","..kwwpwwwwpwwk..","..ksswwwwwwssk..","...kkaaaaaakk...","...kaaacaaaak...","...kwkaaaakwk...","...kkbbbbbbkk...","....kwk..kwk....","....kkk..kkk...."]},"duck":{"name":"Waddle","fill":"a","pal":{"a":"#ffd95c","b":"#ff9b3d","c":"#e6b53d"},"px":["................",".......kk.......","......kaak......","....kkkaakkk....","...kaaaaaaaak...","..kaaaaaaaaaak..","..kaaaeaaeaaak..","..kaaaeaaeaaak..","..kapabbbbapak..","..kcaaabbaaack..","...kkaaaaaakk...","..kaaaaaaaaaak..",".kcaaaaaaaaaack.","..kccaaaaaacck..","...kkbbkkbbkk...","....kkk..kkk...."]}}};
+const sprCache = {};
+function spriteURL(id, blink){
+  const sp = SPR.sprites[id] || SPR.sprites.sprout, key = (SPR.sprites[id] ? id : 'sprout') + (blink ? '_b' : '');
+  if (sprCache[key]) return sprCache[key];
+  const pal = {...SPR.base, ...sp.pal};
+  try{
+    const c = document.createElement('canvas'); c.width = c.height = 16;
+    const g = c.getContext('2d');
+    sp.px.forEach((row, y) => { for (let x = 0; x < row.length; x++){
+      let ch = row[x]; if (ch === '.') continue;
+      if (blink && ch === 'e' && sp.px[y+1] && sp.px[y+1][x] === 'e') ch = sp.fill;
+      g.fillStyle = pal[ch] || '#000'; g.fillRect(x, y, 1, 1);
+    }});
+    return sprCache[key] = c.toDataURL();
+  }catch(e){ return ''; }
+}
+setInterval(() => {
+  const im = document.getElementById('buddyImg');
+  if (!im || !T.buddyOn || document.hidden) return;
+  im.src = spriteURL(T.buddy, true);
+  setTimeout(() => { if (im.isConnected) im.src = spriteURL(T.buddy); }, 140);
+}, 3700);
+
+/* ================= Weather (Open-Meteo, no key) ================= */
+let W = Object.assign({on:true, mode:'auto', lat:null, lon:null, place:'', data:null, asked:false, denied:false, locAt:0}, S.get('wx', {}));
+W.loading = false;
+let wxResults = [];
+function saveW(){ const c = {...W}; delete c.loading; S.set('wx', c); }
+function wxInfo(code, day){
+  if (code === 0) return ['Clear', day ? 'sun' : 'moon'];
+  if (code === 1 || code === 2) return [code === 1 ? 'Mostly clear' : 'Partly cloudy', day ? 'partly' : 'cloud'];
+  if (code === 3) return ['Cloudy', 'cloud'];
+  if (code === 45 || code === 48) return ['Foggy', 'fog'];
+  if (code >= 51 && code <= 57) return ['Drizzle', 'rain'];
+  if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ['Rain', 'rain'];
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return ['Snow', 'snow'];
+  if (code >= 95) return ['Thunderstorms', 'storm'];
+  return ['Cloudy', 'cloud'];
+}
+function wxPill(){
+  if (!W.on) return '<span id="wxPill" hidden></span>';
+  const d = W.data;
+  if (d){
+    const [label, icon] = wxInfo(d.code, d.day);
+    return `<button id="wxPill" class="wx ${W.loading ? 'ld' : ''}" data-act="wx" aria-label="${Math.round(d.temp)} degrees, ${label}">${wic(icon)}<span>${Math.round(d.temp)}°</span>${W.place ? `<small>${esc(W.place)}</small>` : ''}</button>`;
+  }
+  return `<button id="wxPill" class="wx ${W.loading ? 'ld' : ''}" data-act="wx">${wic(W.loading ? 'cloud' : 'pin')}<small>${W.loading ? 'Weather' : 'Set weather'}</small></button>`;
+}
+function updateWxUI(){ const p = document.getElementById('wxPill'); if (p) p.outerHTML = wxPill(); }
+async function wxFetch(force){
+  if (!W.on || W.lat == null) return;
+  if (!force && W.data && Date.now() - W.data.at < 20*60e3) return;
+  W.loading = true; updateWxUI();
+  try{
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${W.lat}&longitude=${W.lon}&current=temperature_2m,apparent_temperature,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`);
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json(), c = j.current;
+    W.data = {temp:c.temperature_2m, feels:c.apparent_temperature, code:c.weather_code, day:c.is_day === 1, hi:j.daily.temperature_2m_max[0], lo:j.daily.temperature_2m_min[0], at:Date.now()};
+  }catch(e){}
+  W.loading = false; saveW(); updateWxUI();
+}
+async function placeName(lat, lon){
+  try{
+    const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+    const j = await r.json(); return j.city || j.locality || j.principalSubdivision || '';
+  }catch(e){ return ''; }
+}
+function requestLocation(fromUser){
+  if (!navigator.geolocation){ W.asked = true; W.denied = true; saveW(); updateWxUI(); if (fromUser) toast('Location isn\'t available here. Search for a city.'); return; }
+  W.loading = true; updateWxUI();
+  navigator.geolocation.getCurrentPosition(async pos => {
+    W.lat = +pos.coords.latitude.toFixed(3); W.lon = +pos.coords.longitude.toFixed(3);
+    W.mode = 'auto'; W.asked = true; W.denied = false; W.locAt = Date.now();
+    const p = await placeName(W.lat, W.lon); if (p) W.place = p;
+    saveW(); await wxFetch(true);
+    if (fromUser){ closeSheet(); toast(W.place ? 'Weather for ' + W.place : 'Weather updated'); }
+  }, err => {
+    W.asked = true; W.loading = false; if (err && err.code === 1) W.denied = true; saveW(); updateWxUI();
+    if (fromUser) toast(err && err.code === 1 ? 'Location is blocked for this site. Search for a city instead.' : 'Couldn\'t get your location. Try again.');
+  }, {enableHighAccuracy:false, timeout:12000, maximumAge:30*60e3});
+}
+async function wxRefresh(){
+  if (!W.on) return;
+  if (W.lat == null){ if (W.mode === 'auto' && !W.asked) setTimeout(() => requestLocation(false), 1400); else updateWxUI(); return; }
+  if (W.mode === 'auto' && Date.now() - (W.locAt || 0) > 3*3600e3){
+    try{
+      const st = navigator.permissions && await navigator.permissions.query({name:'geolocation'});
+      if (st && st.state === 'granted'){ requestLocation(false); return; }
+    }catch(e){}
+  }
+  wxFetch(false);
+}
+function ago(t){ const m = Math.round((Date.now() - t)/60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.round(m/60) + ' h ago'; }
+function openWx(){
+  const d = W.data;
+  let top = '';
+  if (d){
+    const [label, icon] = wxInfo(d.code, d.day);
+    top = `<div class="wxbig"><span class="wxi">${wic(icon)}</span><div><b>${Math.round(d.temp)}°</b><div class="mute">${label}</div></div></div>
+      <div class="wxgrid"><div><small>Feels like</small><b>${Math.round(d.feels)}°</b></div><div><small>High</small><b>${Math.round(d.hi)}°</b></div><div><small>Low</small><b>${Math.round(d.lo)}°</b></div></div>
+      <p class="note">${esc(W.place || 'Your location')} · ${W.mode === 'city' ? 'chosen city' : 'your location'} · updated ${ago(d.at)}</p>`;
+  } else {
+    top = `<p class="note" style="font-size:15px">${W.denied
+      ? 'Location is turned off for this site. Search for your city below, or allow it in iPhone Settings → Apps → Safari → Location.'
+      : 'Allow location to see the weather where you are, or search for a city.'}</p>`;
+  }
+  openSheet(sheetHead('Weather') + top + `
+    <button class="btn" data-act="wxLocate">Use my location</button>
+    <span class="flabel" style="margin-top:16px">Or choose a city</span>
+    <input id="wxQ" class="field" placeholder="e.g. Dubai" autocomplete="off" autocorrect="off" enterkeyhint="search">
+    <div id="wxRes" class="mlist"></div>
+    <p class="note">Weather by Open-Meteo.</p>`);
+  const q = $('#wxQ'); let tm;
+  q.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => wxSearch(q.value), 350); });
+}
+async function wxSearch(qs){
+  const box = $('#wxRes'); if (!box) return;
+  qs = qs.trim(); if (qs.length < 2){ box.innerHTML = ''; return; }
+  try{
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(qs)}&count=6&language=en&format=json`);
+    const j = await r.json(); wxResults = j.results || [];
+    box.innerHTML = wxResults.length ? wxResults.map((x, i) => `<button class="res" data-act="wxPick" data-i="${i}">${wic('pin')}${esc(x.name)}<small>${esc([x.admin1, x.country].filter(Boolean).join(', '))}</small></button>`).join('')
+      : '<p class="note">No places found.</p>';
+  }catch(e){ box.innerHTML = '<p class="note">Search needs an internet connection.</p>'; }
 }
 
 /* ================= Helpers ================= */
@@ -429,6 +636,7 @@ let user = null, D = null;
 let view = 'home', period = 'week', offset = 0;
 let L = {};
 let animate = false, lastAdded = null, lastTotal = 0;
+let selDay = null, calOff = 0, lastGreet = 0, lineIdx = 0, bubT;
 
 function load(u){
   D = S.get('data_'+u, null) || {expenses:[], subs:[], settings:{...DEF_SETTINGS}};
@@ -450,11 +658,55 @@ document.addEventListener('visibilitychange', () => {
   else {
     const s = S.get('session', null);
     if (!s || !(s.until > Date.now())) lockApp();
-    else { processRecurring(); render(); }
+    else { processRecurring(); render(); wxRefresh(); if (Date.now() - lastGreet > 20*60e3) setTimeout(greet, 500); }
   }
 });
 window.addEventListener('pagehide', touchSession);
 setInterval(touchSession, 30000);
+
+/* ================= Buddy greeting ================= */
+function weekSpent(){
+  const t = new Date(); t.setHours(0,0,0,0);
+  const diff = (t.getDay() - D.settings.weekStart + 7) % 7;
+  const s = new Date(t); s.setDate(t.getDate() - diff);
+  const a = ymd(s); return sum(D.expenses.filter(x => x.date >= a && x.date <= ymd(t)));
+}
+function buddyLines(){
+  const h = new Date().getHours();
+  const hi = h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : h < 22 ? 'Good evening' : 'Up late';
+  const out = [];
+  const wk = D.settings.weekly, left = wk - weekSpent();
+  if (wk > 0) out.push(left >= 0 ? `${fmt0(left)} left this week.` : `${fmt0(-left)} over this week. Easy now!`);
+  const td = sum(D.expenses.filter(x => x.date === today()));
+  out.push(td > 0 ? `${fmt0(td)} spent today so far.` : 'Nothing spent today yet. Nice.');
+  if (W.on && W.data){
+    const t = Math.round(W.data.temp), [label, icon] = wxInfo(W.data.code, W.data.day);
+    out.push(t >= 38 ? `${t}° outside. Stay cool!` : icon === 'rain' || icon === 'storm' ? `${label} today. Grab an umbrella.` : `${t}° and ${label.toLowerCase()}${W.place ? ' in ' + W.place : ''}.`);
+  }
+  const soon = D.subs.filter(s => (parse(s.next) - parse(today()))/86400000 <= 3).sort((a,b) => a.next.localeCompare(b.next))[0];
+  if (soon) out.push(`${soon.name} renews ${dueLabel(soon.next).toLowerCase()}.`);
+  out.push('Tap + to log something.');
+  return {hi: `${hi}, ${user}!`, out};
+}
+function say(text){
+  const b = $('#bubble'); if (!b || !T.buddyOn || !user) return;
+  b.textContent = text; b.hidden = false; b.classList.remove('out'); void b.offsetWidth;
+  b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+  const bd = document.querySelector('.buddy');
+  if (bd){ bd.classList.remove('jump'); void bd.offsetWidth; bd.classList.add('jump'); setTimeout(() => bd.classList.remove('jump'), 650); }
+  clearTimeout(bubT);
+  bubT = setTimeout(() => { b.classList.add('out'); setTimeout(() => { b.hidden = true; b.classList.remove('out'); }, 260); }, Math.max(3600, text.length * 75));
+}
+function greet(){
+  if (!T.buddyOn || !T.greet || !user) return;
+  const {hi, out} = buddyLines(); lineIdx = 0; lastGreet = Date.now();
+  say(`${hi} ${out[0]}`);
+}
+function pokeBuddy(){
+  const {out} = buddyLines();
+  lineIdx = (lineIdx + 1) % out.length; haptic();
+  say(out[lineIdx]);
+}
 
 /* ================= Login ================= */
 function resetLogin(mode){
@@ -487,6 +739,7 @@ function renderLogin(){
     const msg = L.mode === 'login' ? 'Enter your PIN' : (L.step === 'confirm' ? 'Confirm your PIN' : 'Create a 4-digit PIN');
     const wait = lockedFor();
     form = `
+      ${T.buddyOn ? `<img class="lg-buddy" src="${spriteURL(T.buddy)}" alt="" width="52" height="52">` : ''}
       <div class="lg-hi">${L.mode === 'login' ? 'Welcome back, ' : 'Hi, '}${esc(L.name)}</div>
       <div class="lg-msg">${wait ? 'Too many tries. Wait ' + wait + 's' : msg}</div>
       <div class="dots ${L.shake ? 'shake' : ''}">${[0,1,2,3].map(i => `<i class="${i < L.pin.length ? 'f' : ''}"></i>`).join('')}</div>
@@ -557,15 +810,17 @@ function enter(name, isNew){
   load(name); save(); touchSession(); askPersist();
   const added = processRecurring();
   $('#login').hidden = true; $('#main').hidden = false; $('#nav').hidden = false;
-  view = 'home'; period = 'week'; offset = 0; lastTotal = 0;
+  view = 'home'; period = 'week'; offset = 0; lastTotal = 0; selDay = today(); calOff = 0;
   animate = true; render();
-  if (isNew) toast(STORAGE_OK ? 'Account created. Set your budget in Settings.' : 'Account created, but Safari is blocking storage');
+  wxRefresh();
+  if (!isNew && !pending.add) setTimeout(greet, 650);
+  if (isNew){ toast(STORAGE_OK ? 'Account created. Set your budget in Settings.' : 'Account created, but Safari is blocking storage'); if (T.buddyOn) setTimeout(() => say(`Hi ${user}! I'm ${(SPR.sprites[T.buddy] || SPR.sprites.sprout).name}. Tap me anytime.`), 2700); }
   else if (added) toast(`${added} subscription payment${added>1?'s':''} added`);
   if (pending.add){ pending.add = false; setTimeout(() => openExpense(null, pending), 300); }
 }
 
 function lockApp(){
-  closeSheet();
+  closeSheet(); const bb = $('#bubble'); if (bb) bb.hidden = true;
   S.del('session');
   user = null; D = null;
   $('#main').hidden = true; $('#nav').hidden = true; $('#login').hidden = false;
@@ -622,10 +877,13 @@ const byDate = (a,b) => a.date === b.date ? (a.created||0) - (b.created||0) : a.
 /* ================= Views ================= */
 function header(){
   const init = (user || '?').slice(0,1).toUpperCase();
+  const left = T.buddyOn
+    ? `<button class="buddy" data-act="buddy" aria-label="Your buddy, ${esc((SPR.sprites[T.buddy] || SPR.sprites.sprout).name)}"><img id="buddyImg" src="${spriteURL(T.buddy)}" alt="" width="40" height="40"></button>`
+    : `<span class="avatar" aria-label="${esc(user)}">${esc(init)}</span>`;
   return `<header class="top">
-    <div class="hl"><span class="avatar" aria-label="${esc(user)}">${esc(init)}</span>
+    <div class="hl">${left}
       <button class="circle" data-act="add" aria-label="Add expense">${ic('plus',2)}</button></div>
-    <button class="circle ghost" data-act="menu" aria-label="Menu">${ic('down',2)}</button>
+    <div class="hr">${wxPill()}<button class="circle ghost" data-act="menu" aria-label="Menu">${ic('down',2)}</button></div>
   </header>`;
 }
 function periodBlock(eyebrow){
@@ -635,9 +893,15 @@ function periodBlock(eyebrow){
     <div class="pnav"><button data-act="prev" aria-label="Previous">${ic('left',2.2)}</button><span>${rangeLabel(r)}</span>
       <button data-act="next" aria-label="Next" ${offset >= 0 ? 'disabled' : ''}>${ic('right',2.2)}</button></div>`;
 }
-function card(x, i){
+function timeOf(x){
+  if (x.sub) return 'Auto';
+  if (!x.created) return '';
+  const c = new Date(x.created); if (ymd(c) !== x.date) return '';
+  return c.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+}
+function card(x, i, mode){
   const c = cat(x.cat), d = parse(x.date);
-  const dl = period === 'week' ? DAYS[d.getDay()] : `${DAYS[d.getDay()].slice(0,3)} ${d.getDate()}`;
+  const dl = mode === 'day' ? timeOf(x) : period === 'week' ? DAYS[d.getDay()] : `${DAYS[d.getDay()].slice(0,3)} ${d.getDate()}`;
   const cls = x.id === lastAdded ? 'pop' : (animate ? 'enter' : '');
   return `<button class="card ${cls}" style="${catVars(c.id)};--i:${i}" data-act="edit" data-id="${x.id}">
     <div class="card-top"><span class="ic">${ic(c.id)}</span>${x.sub ? `<span class="pill">${ic('repeat',2)}Subscription</span>` : ''}${x.note ? `<span class="pill ttl" style="max-width:55%">${esc(x.note)}</span>` : ''}</div>
@@ -699,6 +963,49 @@ function renderStats(){
     ${top.length ? `<div class="panel"><h3>Top places <span>where it went</span></h3>${top.map(([k,v]) => `<div class="mrow"><span class="ttl">${esc(k)}</span><span>${fmt(v)}</span></div>`).join('')}</div>` : ''}`;
 }
 
+function renderDays(){
+  const tk = today(); if (!selDay || selDay > tk) selDay = tk;
+  const t = new Date(), base = new Date(t.getFullYear(), t.getMonth() + calOff, 1);
+  const y = base.getFullYear(), m = base.getMonth(), dim = new Date(y, m+1, 0).getDate();
+  const lead = (base.getDay() - D.settings.weekStart + 7) % 7;
+  const mk = `${y}-${pad(m+1)}`;
+  const totals = {}; D.expenses.forEach(x => { totals[x.date] = (totals[x.date] || 0) + (+x.amount || 0); });
+  const daily = D.settings.weekly > 0 ? D.settings.weekly/7 : (D.settings.monthly > 0 ? D.settings.monthly/30 : 0);
+  const monthTotal = sum(D.expenses.filter(x => x.date.startsWith(mk)));
+  const wd = [0,1,2,3,4,5,6].map(i => DAYS[(i + D.settings.weekStart) % 7].slice(0,1));
+  let cells = '';
+  for (let i = 0; i < lead; i++) cells += '<span></span>';
+  for (let d = 1; d <= dim; d++){
+    const k = `${mk}-${pad(d)}`, v = totals[k] || 0;
+    const lvl = !v ? '' : !daily ? 'mid' : v > daily ? 'hi' : v > daily*.5 ? 'mid' : 'lo';
+    cells += `<button class="cday ${k === selDay ? 'sel' : ''} ${k === tk ? 'today' : ''}" data-day="${k}" ${k > tk ? 'disabled' : ''} aria-label="${d} ${MONTHS[m]}${v ? ', ' + fmt(v) : ''}"><span>${d}</span><i class="lv ${lvl}"></i></button>`;
+  }
+  const sd = parse(selDay);
+  const yest = new Date(); yest.setDate(yest.getDate() - 1);
+  const rel = selDay === tk ? 'Today' : selDay === ymd(yest) ? 'Yesterday' : DAYS[sd.getDay()];
+  const list = D.expenses.filter(x => x.date === selDay).sort(byDate), tot = sum(list);
+  const cats = CATS.map(c => ({c, v: sum(list.filter(x => x.cat === c.id))})).filter(x => x.v > 0).sort((a,b) => b.v - a.v);
+  const vs = daily && tot ? ` · ${tot <= daily ? fmt0(daily - tot) + ' under' : fmt0(tot - daily) + ' over'} daily budget` : '';
+  return header() + `
+    <div class="eyebrow">History</div>
+    <div class="headline">Days</div>
+    <div class="panel cal" style="margin-top:20px">
+      <div class="cal-h"><b>${MONTHS[m]} ${y}</b><span class="mute">${fmt0(monthTotal)}</span>
+        <div class="cal-nav"><button data-act="calPrev" aria-label="Previous month">${ic('left',2.2)}</button><button data-act="calNext" aria-label="Next month" ${calOff >= 0 ? 'disabled' : ''}>${ic('right',2.2)}</button></div></div>
+      <div class="cal-g wd">${wd.map(w => `<span>${w}</span>`).join('')}</div>
+      <div class="cal-g">${cells}</div>
+      ${daily ? `<div class="cal-key"><span><i class="lv lo"></i>Light</span><span><i class="lv mid"></i>Normal</span><span><i class="lv hi"></i>Over daily budget</span></div>` : ''}
+    </div>
+    <div class="dayhead">
+      <div><div class="mute">${rel}</div><div class="dh-date">${sd.getDate()} ${MON[sd.getMonth()]}</div></div>
+      <div class="dh-tot"><b>${fmt(tot)}</b><span>${list.length} expense${list.length === 1 ? '' : 's'}${vs}</span></div>
+    </div>
+    ${cats.length ? `<div class="catpills">${cats.map(x => `<span class="cpill" style="${catVars(x.c.id)}">${ic(x.c.id)}${x.c.name} · ${fmt0(x.v)}</span>`).join('')}</div>` : ''}
+    <div class="stack">${list.length ? list.map((x, i) => card(x, i, 'day')).join('') :
+      `<div class="empty"><b>Nothing spent</b>${selDay === tk ? 'No expenses logged today yet.' : 'No expenses on this day.'}</div>`}</div>
+    <button class="btn" data-act="addOn" style="margin-top:16px">Add expense on ${sd.getDate()} ${MON[sd.getMonth()]}</button>`;
+}
+
 const monthlyEq = s => s.freq === 'weekly' ? s.amount*52/12 : s.freq === 'yearly' ? s.amount/12 : +s.amount;
 function dueLabel(dstr){
   const n = Math.round((parse(dstr) - parse(today()))/86400000);
@@ -758,6 +1065,19 @@ function renderSettings(){
       <label class="srow"><span class="lbl">Motion<small>Card animations</small></span><input type="checkbox" switch data-theme-toggle="motion" ${T.motion ? 'checked' : ''}></label>
     </div>
 
+    <div class="gtitle">Buddy</div>
+    <div class="group">
+      <div class="srow col"><div class="buddies">${Object.entries(SPR.sprites).map(([id, sp]) => `<button class="bpick ${T.buddy === id ? 'on' : ''}" data-buddy="${id}" aria-label="${sp.name}"><img src="${spriteURL(id)}" alt="" width="40" height="40"><span>${sp.name}</span></button>`).join('')}</div></div>
+      <label class="srow"><span class="lbl">Show buddy<small>Sits at the top of the app</small></span><input type="checkbox" switch data-theme-toggle="buddyOn" ${T.buddyOn ? 'checked' : ''}></label>
+      <label class="srow"><span class="lbl">Say hi when I open the app</span><input type="checkbox" switch data-theme-toggle="greet" ${T.greet ? 'checked' : ''}></label>
+    </div>
+
+    <div class="gtitle">Weather</div>
+    <div class="group">
+      <label class="srow"><span class="lbl">Show weather<small>Current weather from Open-Meteo</small></span><input type="checkbox" switch data-wx-toggle ${W.on ? 'checked' : ''}></label>
+      <button class="srow" data-act="wx">Location<span class="v">${esc(W.place || (W.lat != null ? 'Current location' : 'Not set'))}</span></button>
+    </div>
+
     <div class="gtitle">Budget</div>
     <div class="group">
       <label class="srow">Weekly budget<input type="number" inputmode="decimal" min="0" step="1" data-set="weekly" value="${st.weekly}"></label>
@@ -793,7 +1113,7 @@ function renderSettings(){
 }
 
 function renderNav(){
-  const items = [['home','spend','Spending'],['stats','stats','Insights'],['subs','repeat','Subscriptions'],['settings','sliders','Settings']];
+  const items = [['home','spend','Spending'],['days','cal','Days'],['stats','stats','Insights'],['subs','repeat','Subscriptions'],['settings','sliders','Settings']];
   $('#nav').innerHTML = items.map(([v,i,l]) => `<button class="${view === v ? 'on' : ''}" data-nav="${v}" aria-label="${l}">${ic(i,2)}</button>`).join('');
 }
 
@@ -806,7 +1126,7 @@ function countUp(el){
 }
 function render(newView){
   if (!user) return;
-  const fn = {home:renderHome, stats:renderStats, subs:renderSubs, settings:renderSettings}[view];
+  const fn = {home:renderHome, days:renderDays, stats:renderStats, subs:renderSubs, settings:renderSettings}[view];
   const v = $('#view');
   const keepScroll = view === 'settings' && !newView ? window.scrollY : null;
   v.innerHTML = fn();
@@ -840,7 +1160,7 @@ function openExpense(id, pre = {}){
     <span class="flabel">Category</span>
     ${catChips(c)}
     <div class="two">
-      <div><span class="flabel">Date</span><input id="fDate" type="date" class="field" value="${x ? x.date : today()}" max="${today()}"></div>
+      <div><span class="flabel">Date</span><input id="fDate" type="date" class="field" value="${x ? x.date : (pre.date || today())}" max="${today()}"></div>
       <div><span class="flabel">Note</span><input id="fNote" class="field" placeholder="Optional" maxlength="30" value="${esc(x?.note || '')}"></div>
     </div>
     <button class="btn" data-act="saveExp" data-id="${x ? x.id : ''}">${x ? 'Save changes' : 'Add expense'}</button>
@@ -856,7 +1176,7 @@ function saveExpense(id){
   else {
     const nid = uid(); D.expenses.push({id: nid, created: Date.now(), ...data}); lastAdded = nid; toast(`${fmt(amount)} added`);
     const r = range(); if (date < ymd(r.s) || date > ymd(r.e)) offset = 0;
-    if (view !== 'home'){ view = 'home'; }
+    if (view === 'days') selDay = date; else if (view !== 'home') view = 'home';
   }
   save(); closeSheet(); render();
 }
@@ -902,6 +1222,7 @@ function askConfirm(title, msg, okLabel, fn){
 function openMenu(){
   openSheet(sheetHead('Menu') + `<div class="mlist">
     <button data-nav="home">${ic('spend')}Spending</button>
+    <button data-nav="days">${ic('cal')}Days</button>
     <button data-nav="stats">${ic('stats')}Insights</button>
     <button data-nav="subs">${ic('repeat')}Subscriptions</button>
     <button data-nav="settings">${ic('sliders')}Settings</button>
@@ -1007,6 +1328,10 @@ document.addEventListener('click', e => {
     const key = tk.dataset.themeKey, val = tk.dataset.themeVal;
     T[key] = key === 'gradient' ? val === 'true' : val; saveTheme(); render(); return;
   }
+  const dy = e.target.closest('[data-day]');
+  if (dy){ haptic(); selDay = dy.dataset.day; animate = true; render(); return; }
+  const bp = e.target.closest('[data-buddy]');
+  if (bp){ haptic(); T.buddy = bp.dataset.buddy; saveTheme(); render(); setTimeout(() => say(`Hi! I'm ${SPR.sprites[T.buddy].name}.`), 120); return; }
   const pr = e.target.closest('[data-preset]');
   if (pr){ haptic(); T.preset = pr.dataset.preset; saveTheme(); render(); return; }
   const a = e.target.closest('[data-act]');
@@ -1031,6 +1356,13 @@ document.addEventListener('click', e => {
     case 'prev': offset--; animate = true; render(); break;
     case 'next': if (offset < 0){ offset++; animate = true; render(); } break;
     case 'menu': openMenu(); break;
+    case 'buddy': pokeBuddy(); break;
+    case 'wx': openWx(); break;
+    case 'wxLocate': requestLocation(true); break;
+    case 'wxPick': { const r = wxResults[+a.dataset.i]; if (r){ W.lat = +r.latitude.toFixed(3); W.lon = +r.longitude.toFixed(3); W.place = r.name; W.mode = 'city'; W.asked = true; saveW(); closeSheet(); wxFetch(true).then(() => { if (view === 'settings') render(); }); toast('Weather for ' + r.name); } break; }
+    case 'calPrev': calOff--; render(); break;
+    case 'calNext': if (calOff < 0){ calOff++; render(); } break;
+    case 'addOn': openExpense(null, {date: selDay}); break;
     case 'close': closeSheet(); break;
     case 'confirmOk': { const fn = confirmFn; confirmFn = null; if (fn) fn(); break; }
     case 'lockNow': lockApp(); break;
@@ -1065,7 +1397,15 @@ document.addEventListener('change', e => {
   const ci = e.target.closest('[data-ci]');
   if (ci){ saveTheme(); render(); toast('Colors saved'); return; }
   const tg = e.target.closest('[data-theme-toggle]');
-  if (tg){ T[tg.dataset.themeToggle] = tg.checked; saveTheme(); if (tg.checked && tg.dataset.themeToggle === 'haptics') haptic(); return; }
+  if (tg){
+    const k = tg.dataset.themeToggle; T[k] = tg.checked; saveTheme();
+    if (tg.checked && k === 'haptics') haptic();
+    if (k === 'buddyOn'){ render(); if (!tg.checked){ const bb = $('#bubble'); if (bb) bb.hidden = true; } }
+    if (tg.checked && k === 'greet') greet();
+    return;
+  }
+  const wt = e.target.closest('[data-wx-toggle]');
+  if (wt){ W.on = wt.checked; saveW(); render(); if (W.on) wxRefresh(); return; }
   const t = e.target.closest('[data-set]');
   if (!t || !D) return;
   D.settings[t.dataset.set] = Math.max(0, parseFloat(t.value) || 0); save(); touchSession();
